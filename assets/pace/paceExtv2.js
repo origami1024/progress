@@ -861,7 +861,7 @@
   //99% stuck fix
   var initDestroyTimeOutPace = function() {
     var counter = 0;
-
+    console.log('99fixinit')
     var refreshIntervalId = setInterval( function(){
         var progress; 
 
