@@ -19,7 +19,7 @@
   -webkit-background-clip: padding-box;
   -moz-background-clip: padding;
   background-clip: padding-box;
-
+  background-image: url(/assets/img/progress.svg);
   z-index: 2000;
   position: fixed;
   margin: auto;
