@@ -18,7 +18,7 @@
     target: 'body',
     elements: {
       checkInterval: 100,
-      selectors: ['img']
+      selectors: ['body']
     },
     eventLag: {
       minSamples: 10,
