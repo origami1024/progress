@@ -275,7 +275,7 @@
 <path d="M138,40.72a6.88,6.88,0,0,0-3-2,13,13,0,0,0-8,0,6.19,6.19,0,0,0-2.75,2,9.49,9.49,0,0,0-1.84,3.62,19.69,19.69,0,0,0-.64,5.42,18.86,18.86,0,0,0,.67,5.42,8.57,8.57,0,0,0,2,3.62,7.21,7.21,0,0,0,3.27,2,17.51,17.51,0,0,0,5,.63,22.85,22.85,0,0,0,3.59-.27,19.91,19.91,0,0,0,2.86-.63l-.62-2.25h-4.84a6.31,6.31,0,0,1-4.69-1.55c-1-1-1.51-3-1.51-5.63h12.9V49.76a19.66,19.66,0,0,0-.65-5.42A9.63,9.63,0,0,0,138,40.72Zm-10.42,7.47a19.56,19.56,0,0,1,.27-3.6,7.62,7.62,0,0,1,.72-2.21A2.76,2.76,0,0,1,131.09,41a2.85,2.85,0,0,1,2.69,1.39,8,8,0,0,1,.71,2.21,18.61,18.61,0,0,1,.28,3.6Z"/>
 </g>
 </svg>
-<p id="txt" style="color:lime; font-size:80px; font-weight:900;"></p>
+<p class="debuggerTxt" id="txt"></p>
 <div class="pace-activity"></div>`;
         if (targetElement.firstChild != null) {
           targetElement.insertBefore(this.el, targetElement.firstChild);
@@ -324,7 +324,7 @@
       }
       if (!this.lastRenderedProgress || this.lastRenderedProgress | 0 !== this.progress | 0) {
         el.children[0].setAttribute('data-progress-text', "" + (this.progress | 0) + "%");
-        document.getElementById('txt').innerText = this.progress
+        document.getElementById('txt').innerText = (this.progress | 0) + "%"
         if (this.progress >= 100) {
           progressStr = '99';
         } else {

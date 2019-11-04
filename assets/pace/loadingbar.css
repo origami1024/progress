@@ -63,6 +63,12 @@
 .pace.pace-inactive {
   display: none;
 }
- .cls-1{
+.cls-1{
   fill: red;
+}
+.debuggerTxt{
+  transform: translate3d(0, 60vh, 0);
+  color:lime;
+  font-size:30px;
+  font-weight:900;
 }
