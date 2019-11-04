@@ -1,0 +1,11 @@
+{
+  "name": "progress",
+  "version": "1.0.0",
+  "description": "automatic animation synced with progress with PACE lib, on page loading",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC"
+}
