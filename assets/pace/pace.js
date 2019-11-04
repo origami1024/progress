@@ -247,11 +247,11 @@
         document.body.className = document.body.className.replace(/pace-done/g, '');
         document.body.className += ' pace-running';
         this.el.innerHTML = `
-        <svg class="pace-progress" xmlns="http://www.w3.org/2000/svg" viewbox="0 0 141.23 62">
+        <svg class="pace-progress" xmlns="http://www.w3.org/2000/svg" viewbox="0 0 142 62">
 <defs>
 <mask id="myMask" x="0" y="0">
-<rect class="maskPart1" x="0" y="0" width="200" height="200" fill="white"></rect>
-<rect class="maskPart2" x="0" y="0" width="200" height="200" fill="black"></rect>
+<rect class="maskPart1" x="0" y="0" width="142" height="200" fill="white"></rect>
+<rect class="maskPart2" x="0" y="0" width="142" height="200" fill="black"></rect>
 </mask>
 </defs>
 <g fill="gray">
@@ -315,7 +315,7 @@
       }
       el = this.getElement();
       transform = "translate3d(" + 100 + "%, 0, 0)"; //0 = this.progress
-      document.getElementsByClassName('maskPart2')[0].setAttribute('x', (this.progress*2 | 0))
+      document.getElementsByClassName('maskPart2')[0].setAttribute('x', (this.progress*1.42 | 0))
       _ref2 = ['webkitTransform', 'msTransform', 'transform'];
       for (_j = 0, _len1 = _ref2.length; _j < _len1; _j++) {
         key = _ref2[_j];
