@@ -58,8 +58,14 @@
 }
 
 
-
-
+.inner-svg{ 
+  width: 100%;
+  height: 100%;
+}
+.pace-progress-inner{
+  display: none;
+  position: absolute;
+}
 .pace.pace-inactive {
   display: none;
 }
