@@ -858,6 +858,30 @@
     eventLag: EventLagMonitor
   };
 
+  //99% stuck fix
+  var initDestroyTimeOutPace = function() {
+    var counter = 0;
+
+    var refreshIntervalId = setInterval( function(){
+        var progress; 
+
+        if( typeof $( '.pace-progress' ).attr( 'data-progress-text' ) !== 'undefined' ) {
+            progress = Number( $( '.pace-progress' ).attr( 'data-progress-text' ).replace("%" ,'') );
+        }
+
+        if( progress === 99 ) {
+            counter++;
+        }
+
+        if( counter > 50 ) {
+            clearInterval(refreshIntervalId);
+            Pace.stop();
+        }
+    }, 100);
+  }
+  initDestroyTimeOutPace();
+
+
   (init = function() {
     var type, _j, _k, _len1, _len2, _ref2, _ref3, _ref4;
     Pace.sources = sources = [];
