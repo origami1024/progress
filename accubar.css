@@ -21,6 +21,23 @@
 }
 .debuggerTxt{
   color: orchid;
-  
-  
+  position: relative;
+  line-height: 1.5;
+}
+.dbtxt3:after {
+  position: absolute;
+  content: '';
+  right: -40px;
+  border: 6px solid transparent;
+  border-radius: 50%;
+  border-top: 6px solid orchid;
+  border-bottom: 6px solid orchid;
+  width: 14px;
+  height: 14px;
+  -webkit-animation: spin 2s linear infinite;
+  animation: spin 2s linear infinite;
+}
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }

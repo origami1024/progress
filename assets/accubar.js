@@ -6,7 +6,7 @@ var presets = {
   presetImagesCount: 0,//reset on interactive, so no accidentaly endless waiting
   fakeProgressPoints: 0,//each added as setTimer callback after the complete loading of doc, dont implement it for now
   svgWidth: 142,
-  ghostTime: 300,//WHEN 100% reached, how long to wait before hiding
+  ghostTime: 500,//WHEN 100% reached, how long to wait before hiding
 }
 
 var image_array = document.getElementsByTagName("img");
@@ -41,9 +41,7 @@ var composite = {
 //dont forget to kill the tracker in the end
 var tracker = setInterval(()=>{
   for (let i = 0, icount=composite.images.length; i < icount; i++){
-    console.log('all: ', composite.images.length)
     if (composite.imageCollection[composite.images[i]].complete) {
-      console.log('complete: ', i)
       composite.images.splice(i,1)
       composite.doneImages += 1
       break;//one at a time
@@ -62,7 +60,7 @@ var tracker = setInterval(()=>{
     //duno wot to do if this happens yet
   }
   console.log(`progress: ${composite.realProgress} / ${composite.progressCap}`)
-  //kill self
+  //delete itself
   if (composite.progressCap === composite.realProgress) {
     clearInterval(tracker)
     console.log('TRACKER KILLED')
