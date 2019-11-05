@@ -3,7 +3,7 @@
 
 
 ##currently svg is added as code to js file
-###in svg there is:
+###in svg there are:
 ###-black/white mask
 ###-gray - or simple bg svg//possibly filtered grayscale filtered
 ###-other color - svg //possibly grayscale unfiltered?

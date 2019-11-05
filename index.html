@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
-  <!-- <script src="assets/accubar.js"></script> -->
+  <script src="assets/accubar.js"></script>
   
 <head>
-  <script src="assets/pace/paceExtv2.js"></script>
+  <!-- <script src="assets/pace/paceExtv2.js"></script> -->
   <!-- <link href="assets/pace/standart100.css" rel="stylesheet" /> -->
-  <link href="assets/pace/loadingbar.css" rel="stylesheet" />
+  <link href="accubar.css" rel="stylesheet" />
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
@@ -16,14 +16,15 @@
     margin: 0;
   }
   .view{
-    display: grid;
-    grid-template-columns: repeat(3, 27vw);
-    grid-auto-rows: 220px;
+    /* display: grid; */
+    display: flex;
+    flex-wrap: wrap;
     width: 90vw;
   }
   .photo{
-    height: 100%;
-    /* object-fit: cover; */
+    height: 26vh;
+    margin-right: 2px;
+    margin-bottom: 2px;
   }
   .centeredSection{
     width: 90vw;
@@ -33,6 +34,7 @@
   }
   body{
     background-color: black;
+    margin: 5px;
   }
 </style>
 <body>

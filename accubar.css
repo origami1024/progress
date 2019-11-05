@@ -1,0 +1,26 @@
+.accubar {
+  position: absolute;
+  top: 1vh;
+  height: 98vh;
+  width: 90vw;
+  left: 4vw;
+  outline: 1px solid yellow;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(0,0,0,0.9);
+}
+.inner-svg {
+  width: 40vw;
+  
+}
+
+.color1 {
+  fill: orchid;
+}
+.debuggerTxt{
+  color: orchid;
+  
+  
+}
