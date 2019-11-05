@@ -1,17 +1,15 @@
 //TODOS: 
-//animate inbetween progress gradually
-//FADEOUT ANIMATION FOR LOADER DISAPPEARENCE
-//delete the bar element
+//B. animate inbetween progress gradually
+//C. FADEOUT ANIMATION FOR LOADER DISAPPEARENCE
+//D. delete the bar element in the end
+//E. THINK HOW TO EMBED SVG BEST
 var presets = {
   presetImagesCount: 0,//reset on interactive, so no accidentaly endless waiting
   fakeProgressPoints: 0,//each added as setTimer callback after the complete loading of doc, dont implement it for now
   svgWidth: 142,
-  ghostTime: 500,//WHEN 100% reached, how long to wait before hiding
+  ghostTime: 500,//WHEN 100% reached, hide the bar after this time in ms
+  useSmoothing: true
 }
-
-var image_array = document.getElementsByTagName("img");
-var image_count = image_array.length
-console.log('!!!',image_count)
 
 
 var composite = {
@@ -21,59 +19,51 @@ var composite = {
   
   documentReadyState: 0,
   doneImages: 0,
-  //imageCount: 0, //images that got listener take that from length of images
-  imageCollection: [],//maybe resetting the collection each time can be optimized
+  imageCollection: [],
   images: []
-  //elements,
-  //ajax
+  //elements,?
+  //ajax?
 }
 
-/*var tester = setInterval(()=>{
-  
-  if (document.getElementsByTagName('body').length > 0) {
-    console.log('tester KILLED')
-    clearInterval(tester)
-  }
-  
-},20)
-*/
-
-//dont forget to kill the tracker in the end
 var tracker = setInterval(()=>{
   for (let i = 0, icount=composite.images.length; i < icount; i++){
     if (composite.imageCollection[composite.images[i]].complete) {
       composite.images.splice(i,1)
       composite.doneImages += 1
-      break;//one at a time
-      //composite.imageCollection = 
-
+      break;//one at a time, for a smoother loading
     }
   }
   //progress change
-  let oldProgress = composite.realProgress
+  //old progress is just animatedProgress isnt it?
+  //let oldProgress = composite.realProgress
   composite.realProgress = composite.doneImages * 2 + composite.documentReadyState * 3
   if (composite.imageCollection.length == composite.images.length + composite.doneImages) {
     composite.progressCap = composite.imageCollection.length * 2 + 3
   } else {
     composite.progressCap = composite.images.length * 2 + 3
     console.log('UNSYNCRONIZED')
-    //duno wot to do if this happens yet
+    //duno wot to do if this happens yet, can it happen?
   }
   console.log(`progress: ${composite.realProgress} / ${composite.progressCap}`)
+  
   //delete itself
-  if (composite.progressCap === composite.realProgress) {
+  //if (composite.progressCap === composite.realProgress) {
+    if (composite.progressCap === composite.animatedProgress) {
     clearInterval(tracker)
     console.log('TRACKER KILLED')
   }
-  
+  //animation()
   barAnimateProgress()
 },50)
 
+
+
+
 document.onreadystatechange = () => {
-  console.log('readyStateChange: ',document.readyState)
-  //composite.documentReadyState += 1//not sure if it is going to be needed in the future
+  console.log('readyStateChange: ', document.readyState)
   if (document.readyState == 'interactive') {
     initLoadingBar()
+    document.body.classList.add('stop-scrolling')
     composite.documentReadyState = 1
     composite.imageCollection = document.getElementsByTagName("img");
     composite.imageCount = composite.imageCollection.length
@@ -81,15 +71,8 @@ document.onreadystatechange = () => {
     for (let i = 0; i < composite.imageCount; i++){
       composite.images.push(i)
     }
-    
-    console.log('!!!',composite.images)
   }
 }
-
-
-//Another way of checking is use complete property
-//TREAT ON ERROR ON THE IMAGES
-
 
 
 
@@ -126,23 +109,47 @@ bar.innerHTML = `
 <div class="debuggerTxt dbtxt1"></div>
 <div class="debuggerTxt dbtxt2"></div>
 <div class="debuggerTxt dbtxt3"></div>
+<div class="debuggerTxt dbtxt4"></div>
 `
 bar.classList.add('accubar')
 
 function initLoadingBar(){
-  console.log('111',document.querySelector('body'))
-  
   document.body.appendChild(bar)
 }
 function barAnimateProgress(){
-  let perc = composite.realProgress / composite.progressCap
-  document.getElementsByClassName('dbtxt1')[0].textContent = (perc * 100 | 0) + '%'
+  let perc = composite.realProgress / composite.progressCap,
+      animPerc = composite.animatedProgress / composite.progressCap
+  document.getElementsByClassName('dbtxt1')[0].textContent = 'real progress: ' + (perc * 100 | 0) + '%'
   document.getElementsByClassName('dbtxt2')[0].textContent = `document state: ${document.readyState} (${document.readyState == 'interactive' ? 2 : 3} / 3)`
   document.getElementsByClassName('dbtxt3')[0].textContent = `imgs: ${composite.doneImages} / ${composite.imageCollection.length}`
+  document.getElementsByClassName('dbtxt4')[0].textContent = 'animated progress: ' + (animPerc * 100 | 0) + '%'
   document.getElementsByClassName('maskPart2')[0].setAttribute('x', perc* presets.svgWidth)
-  if (perc === 1) {
+  
+  if (perc >= 1) composite.animatedProgress += 2
+
+  //if (perc === 1) {
+  if (animPerc === 1) {
     setTimeout(()=>{
       bar.style.display = 'none'
+      clearInterval(animator)
+      document.body.classList.remove('stop-scrolling')
     },presets.ghostTime)
   }
 }
+
+function animation(){
+  //make drawing of progress bar show animatedProgress
+  //that animated Progress - compute it from real progress
+  //also formulae of deriving - each timer tick add some of real progress to animated progress
+  //but it should end almost same as real 100% somehow
+  //for now just draw 2 percent per second instead of all in
+  
+  if (composite.animatedProgress < composite.realProgress) {
+    composite.animatedProgress += 0.05
+    
+  } else composite.animatedProgress = composite.realProgress
+}
+
+var animator = setInterval(()=>{
+  animation()
+},20)
