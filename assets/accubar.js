@@ -127,7 +127,7 @@ function barAnimateProgress(){
   if (presets.useSmoothing) document.getElementsByClassName('maskPart2')[0].setAttribute('x', animPerc* presets.svgWidth)
   else document.getElementsByClassName('maskPart2')[0].setAttribute('x', perc* presets.svgWidth)
   
-  if (perc >= 1) composite.animatedProgress += 1.5
+  if (perc >= 1) composite.animatedProgress += 1.2
 
 
   let animationBase = presets.useSmoothing ? animPerc : perc 
@@ -148,7 +148,7 @@ function animation(){
   //for now just draw 2 percent per second instead of all in
   
   if (composite.animatedProgress < composite.realProgress) {
-    composite.animatedProgress += 0.05
+    composite.animatedProgress += 0.1
     
   } else composite.animatedProgress = composite.realProgress
 }
