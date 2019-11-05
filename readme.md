@@ -1,4 +1,6 @@
-## automatic animation synced with progress with PACE lib, on page loading
+https://origami1024.github.io/progress/
+
+## progressbar of initial document and image loading 
 ## big pics for some loading time
 
 
