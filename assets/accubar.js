@@ -123,12 +123,15 @@ function barAnimateProgress(){
   document.getElementsByClassName('dbtxt2')[0].textContent = `document state: ${document.readyState} (${document.readyState == 'interactive' ? 2 : 3} / 3)`
   document.getElementsByClassName('dbtxt3')[0].textContent = `imgs: ${composite.doneImages} / ${composite.imageCollection.length}`
   document.getElementsByClassName('dbtxt4')[0].textContent = 'animated progress: ' + (animPerc * 100 | 0) + '%'
-  document.getElementsByClassName('maskPart2')[0].setAttribute('x', perc* presets.svgWidth)
+  //document.getElementsByClassName('maskPart2')[0].setAttribute('x', perc* presets.svgWidth)
+  if (presets.useSmoothing) document.getElementsByClassName('maskPart2')[0].setAttribute('x', animPerc* presets.svgWidth)
+  else document.getElementsByClassName('maskPart2')[0].setAttribute('x', perc* presets.svgWidth)
   
-  if (perc >= 1) composite.animatedProgress += 2
+  if (perc >= 1) composite.animatedProgress += 1.5
 
-  //if (perc === 1) {
-  if (animPerc === 1) {
+
+  let animationBase = presets.useSmoothing ? animPerc : perc 
+  if (animationBase === 1) {
     setTimeout(()=>{
       bar.style.display = 'none'
       clearInterval(animator)
