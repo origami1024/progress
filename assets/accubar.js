@@ -76,7 +76,7 @@ document.onreadystatechange = () => {
     initLoadingBar()
     composite.documentReadyState = 1
     composite.imageCollection = document.getElementsByTagName("img");
-    composite.imageCount = image_array.length
+    composite.imageCount = composite.imageCollection.length
     barAnimateProgress()
     for (let i = 0; i < composite.imageCount; i++){
       composite.images.push(i)
