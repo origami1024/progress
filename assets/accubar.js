@@ -177,6 +177,7 @@ function barAnimateProgress(){
       document.getElementsByClassName('documentTimeStampsDebug')[0].innerHTML += 'animation finished at 100%: ' + parseFloat((new Date().getTime() - startTime)/1000).toFixed(2) + 's'
       document.getElementsByClassName('lastTipDebug')[0].textContent = `Дополнительное время до закрытия(ghost time): ${parseFloat(presets.ghostTime / 1000).toFixed(2)}s`
       document.getElementsByClassName('inner-svg')[0].classList.add('svgEndAnimation')
+      bar.style.setProperty('transition-duration', 'var(--ghostTime)')
       bar.classList.add('barEndAnimation')
       setTimeout(()=>{
         
