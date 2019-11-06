@@ -13,9 +13,9 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  background-color: black;
+  background-color: rgba(0,0,0, 0.9);
   transition-duration: var(--ghostTime);
-  opacity: 0.9;
+  
 }
 .inner-svg {
   width: 30vw;
