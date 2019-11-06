@@ -13,6 +13,7 @@
   justify-content: center;
   align-items: center;
   background-color: rgba(0,0,0,0.9);
+  /* transition: opacity 0.5s 0s; */
 }
 .inner-svg {
   width: 40vw;
@@ -45,8 +46,21 @@
   100% { transform: rotate(360deg); }
 }
 
+/* ending for the bar */
+.endAnimation{
+  /* transform: translateX(100vw); */
+  opacity: 0;
+}
+
+
 /* ANTISCROLLING DURING LOADING, just add this to the body */
 .stop-scrolling {
   height: 100%;
   overflow: hidden;
+}
+
+.maskPart2{
+  --maskPosX: 0px;
+  transition-duration: .5s;
+  transform: translate3d(var(--maskPosX), 0, 0);
 }

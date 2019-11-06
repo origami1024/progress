@@ -1,20 +1,19 @@
 //TODOS: 
-//B. animate inbetween progress gradually
-//C. FADEOUT ANIMATION FOR LOADER DISAPPEARENCE
 //D. delete the bar element in the end
 //E. THINK HOW TO EMBED SVG BEST
+//EE. TRY IFRAME
 var presets = {
   presetImagesCount: 0,//reset on interactive, so no accidentaly endless waiting
   fakeProgressPoints: 0,//each added as setTimer callback after the complete loading of doc, dont implement it for now
   svgWidth: 142,
   ghostTime: 500,//WHEN 100% reached, hide the bar after this time in ms
-  useSmoothing: true
+  useSmoothing: false
 }
 
 
 var composite = {
   realProgress: 0, //measured in points, convert when drawing
-  animatedProgress: 0, //should be less than real progress most of the time
+  //animatedProgress: 0, //should be less than real progress most of the time
   progressCap: 3, //maximum points to track, like 1 point per pic, 3 point on interactive state change
   
   documentReadyState: 0,
@@ -30,6 +29,9 @@ var tracker = setInterval(()=>{
     if (composite.imageCollection[composite.images[i]].complete) {
       composite.images.splice(i,1)
       composite.doneImages += 1
+      //HERE LOG THE TIME NEEDED
+      //ALSO LOG TOTAL TIME IN THE END!
+      //SHOW IT AS SEPARATE DEBUG LINES
       break;//one at a time, for a smoother loading
     }
   }
@@ -47,8 +49,8 @@ var tracker = setInterval(()=>{
   console.log(`progress: ${composite.realProgress} / ${composite.progressCap}`)
   
   //delete itself
-  //if (composite.progressCap === composite.realProgress) {
-    if (composite.progressCap === composite.animatedProgress) {
+  if (composite.progressCap === composite.realProgress) {
+    //if (composite.progressCap === composite.animatedProgress) {
     clearInterval(tracker)
     console.log('TRACKER KILLED')
   }
@@ -117,24 +119,34 @@ function initLoadingBar(){
   document.body.appendChild(bar)
 }
 function barAnimateProgress(){
-  let perc = composite.realProgress / composite.progressCap,
-      animPerc = composite.animatedProgress / composite.progressCap
+  let perc = composite.realProgress / composite.progressCap//, animPerc = composite.animatedProgress / composite.progressCap
   document.getElementsByClassName('dbtxt1')[0].textContent = 'real progress: ' + (perc * 100 | 0) + '%'
   document.getElementsByClassName('dbtxt2')[0].textContent = `document state: ${document.readyState} (${document.readyState == 'interactive' ? 2 : 3} / 3)`
   document.getElementsByClassName('dbtxt3')[0].textContent = `imgs: ${composite.doneImages} / ${composite.imageCollection.length}`
-  document.getElementsByClassName('dbtxt4')[0].textContent = 'animated progress: ' + (animPerc * 100 | 0) + '%'
+  //document.getElementsByClassName('dbtxt4')[0].textContent = 'animated progress: ' + (animPerc * 100 | 0) + '%'
   //document.getElementsByClassName('maskPart2')[0].setAttribute('x', perc* presets.svgWidth)
-  if (presets.useSmoothing) document.getElementsByClassName('maskPart2')[0].setAttribute('x', animPerc* presets.svgWidth)
-  else document.getElementsByClassName('maskPart2')[0].setAttribute('x', perc* presets.svgWidth)
+  if (presets.useSmoothing) {
+    //document.getElementsByClassName('maskPart2')[0].setAttribute('x', animPerc* presets.svgWidth)
+    //SO REPLACE THE ANIMATION TO CSS ONE??? ITS SMOOTHER
+    //JUST NEED TO ESTIMATE TIME AND USE THAT
+    document.getElementsByClassName('maskPart2')[0].style.setProperty('--maskPosX', perc* presets.svgWidth + 'px')
+  } else {
+    //maskPosX
+    document.getElementsByClassName('maskPart2')[0].setAttribute('x', perc* presets.svgWidth)
+    //
+  }
   
-  if (perc >= 1) composite.animatedProgress += 1.2
+  
+  //if (perc >= 1) composite.animatedProgress += 0.1
 
 
-  let animationBase = presets.useSmoothing ? animPerc : perc 
-  if (animationBase === 1) {
+  //let animationBase = presets.useSmoothing ? animPerc : perc 
+  if (perc >= 1) {
+    //bar.classList.add('endAnimation')
     setTimeout(()=>{
-      bar.style.display = 'none'
-      clearInterval(animator)
+      bar.style.display = 'none' //change this for some disappering effect
+      
+      //clearInterval(animator)
       document.body.classList.remove('stop-scrolling')
     },presets.ghostTime)
   }
@@ -148,11 +160,12 @@ function animation(){
   //for now just draw 2 percent per second instead of all in
   
   if (composite.animatedProgress < composite.realProgress) {
-    composite.animatedProgress += 0.1
+    composite.animatedProgress += 0.05
     
   } else composite.animatedProgress = composite.realProgress
 }
 
-var animator = setInterval(()=>{
+/*var animator = setInterval(()=>{
   animation()
 },20)
+*/
