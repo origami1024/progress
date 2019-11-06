@@ -1,5 +1,6 @@
 :root{
   --main_color: orchid;
+  --ghostTime: 500ms;
 }
 .accubar {
   position: absolute;
@@ -12,12 +13,13 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  background-color: rgba(0,0,0,0.9);
-  /* transition: opacity 0.5s 0s; */
+  background-color: black;
+  transition-duration: var(--ghostTime);
+  opacity: 0.9;
 }
 .inner-svg {
-  width: 40vw;
-  
+  width: 30vw;
+  transition-duration: var(--ghostTime);
 }
 
 .color1 {
@@ -27,11 +29,12 @@
   color: var(--main_color);
   position: relative;
   line-height: 1.5;
+  align-self: flex-start;
 }
-.dbtxt3:after {
+.imgsLoader:after {
   position: absolute;
   content: '';
-  right: -40px;
+  right: -30px;
   border: 6px solid transparent;
   border-radius: 50%;
   border-top: 6px solid var(--main_color);
@@ -47,8 +50,13 @@
 }
 
 /* ending for the bar */
-.endAnimation{
-  /* transform: translateX(100vw); */
+.svgEndAnimation{
+  transform: scale3d(0.2, 1, 0);
+  /*spin + opacity out perhaps?*/
+  opacity: 0;
+}
+.barEndAnimation{
+  /*spin + opacity out perhaps?*/
   opacity: 0;
 }
 
