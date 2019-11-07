@@ -1,6 +1,6 @@
 //TODOS: 
 
-//D. delete the bar element in the end
+//D. delete the bar element in the end. (leave it now for debugging)
 //E. THINK HOW TO EMBED SVG BEST
 //E.1--svg inside svg
 //E.1.2. will it laod before all other pics?
@@ -14,7 +14,8 @@ var presets = {
   ghostTime: 1750,//WHEN 100% reached, hide the bar after this time
   useCssTransition: true,//add value to css transition or set x position manually in js
   picPath: 'assets/img/progress_v4.svg',
-  picPath: 'assets/img/honda-11.svg',//
+  picPath: 'assets/img/visa-5.svg',//
+  picPathGray: 'assets/img/visa-5Gray.svg',//
 }
 var svgCode = `
 <svg class="inner-svg" xmlns="http://www.w3.org/2000/svg" viewbox="0 0 142 61">
@@ -24,7 +25,9 @@ var svgCode = `
       <rect class="maskMovingPart maskLeftToRight" x="0" y="0" width="142" height="62" fill="black"></rect>
     </mask>
   </defs>
-  <image mask="url(#myMask)" xlink:href="${presets.picPath}" x="0" y="0" preserveAspectRatio="none" width="142" height="62">
+  <image style="filter: grayscale(1)" xlink:href="${presets.picPath}" x="0" y="0" preserveAspectRatio="none" width="142" height="62" />
+  <image mask="url(#myMask)" xlink:href="${presets.picPath}" x="0" y="0" preserveAspectRatio="none" width="142" height="62" />
+  
 </svg>
 `
 

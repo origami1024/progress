@@ -40,6 +40,9 @@
 .maskLeftToRight{
   transform: translate3d(var(--maskPosX), 0, 0);
 }
+.maskBottomToTop{
+  transform: translate3d(0, calc(-1 * var(--maskPosX)), 0);
+}
 
 
 
