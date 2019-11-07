@@ -3,6 +3,12 @@
   --ghostTime: 500ms;
   --maskAnimDuration: 500ms;
 }
+.color1 {
+  fill: var(--main_color);
+}
+
+
+/* Styling of the whole page WRAPPER of the loading bar */
 .accubar {
   position: absolute;
   top: 1vh;
@@ -15,17 +21,30 @@
   justify-content: center;
   align-items: center;
   background-color: rgba(0,0,0, 0.9);
-  
-  
 }
+/* ----- */
+
+
 .inner-svg {
   width: 30vw;
   transition-duration: var(--ghostTime);
 }
 
-.color1 {
-  fill: var(--main_color);
+
+
+.maskMovingPart{
+  --maskPosX: 0px;
+  transition-duration: var(--maskAnimDuration);
+  /* transform: translate3d(var(--maskPosX), 0, 0); */
 }
+.maskLeftToRight{
+  transform: translate3d(var(--maskPosX), 0, 0);
+}
+
+
+
+
+/* DEBUGGER TEXT STYLING */
 .debuggerTxt{
   color: var(--main_color);
   position: relative;
@@ -49,17 +68,13 @@
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
+/* ----- */
 
-/* ending for the bar */
-.svgEndAnimation{
-  /* transform: scale3d(0.2, 1, 0); */
-  /*spin + opacity out perhaps?*/
-  opacity: 0;
-}
-.barEndAnimation{
-  /*spin + opacity out perhaps?*/
-  opacity: 0;
-}
+
+/* Final animation for the svg and bar (just opacity out for now) */
+.svgEndAnimation{opacity: 0;}
+.barEndAnimation{opacity: 0;}
+/* ----- */
 
 
 /* ANTISCROLLING DURING LOADING, just add this to the body */
@@ -67,9 +82,4 @@
   height: 100%;
   overflow: hidden;
 }
-
-.maskPart2{
-  --maskPosX: 0px;
-  transition-duration: var(--maskAnimDuration);
-  transform: translate3d(var(--maskPosX), 0, 0);
-}
+/* ----- */

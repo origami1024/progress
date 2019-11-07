@@ -1,7 +1,9 @@
 //TODOS: 
-//C. use image load timestamps, to set the transition speed for maskPart2
+
 //D. delete the bar element in the end
 //E. THINK HOW TO EMBED SVG BEST
+//E.1--svg inside svg
+//E.1.2. will it laod before all other pics?
 
 
 
@@ -10,17 +12,24 @@ var presets = {
   fakeProgressPoints: 0,//each added as setTimer callback after the complete loading of doc, dont implement it for now
   svgWidth: 142,
   ghostTime: 1750,//WHEN 100% reached, hide the bar after this time
-  useCssTransition: true//add value to css transition or set x position manually in js
+  useCssTransition: true,//add value to css transition or set x position manually in js
+  picPath: 'assets/img/progress_v4.svg',
+  picPath: 'assets/img/honda-11.svg',//
 }
 var svgCode = `
-<svg class="inner-svg" xmlns="http://www.w3.org/2000/svg" viewbox="0 0 142 62">
+<svg class="inner-svg" xmlns="http://www.w3.org/2000/svg" viewbox="0 0 142 61">
   <defs>
     <mask id="myMask" x="0" y="0">
-    <rect class="maskPart1" x="0" y="0" width="142" height="200" fill="white"></rect>
-    <rect class="maskPart2" x="0" y="0" width="142" height="200" fill="black"></rect>
+      <rect class="maskPart1" x="0" y="0" width="142" height="62" fill="white"></rect>
+      <rect class="maskMovingPart maskLeftToRight" x="0" y="0" width="142" height="62" fill="black"></rect>
     </mask>
   </defs>
-  <g fill="gray">
+  <image mask="url(#myMask)" xlink:href="${presets.picPath}" x="0" y="0" preserveAspectRatio="none" width="142" height="62">
+</svg>
+`
+
+/*
+<g fill="gray">
   <path d="M63.62,38.25a10.23,10.23,0,0,0-4.89,1.3V28.91L53,30.18V59.84A17.45,17.45,0,0,0,61.1,62c5.78,0,11.23-3.33,11.23-12.15S67.57,38.25,63.62,38.25ZM61.09,59.07a7.93,7.93,0,0,1-2.36-.37V41.81a6.07,6.07,0,0,1,3.1-.49c1.57.15,4.61,1.43,4.61,8.78S63.43,59.07,61.09,59.07Z"/>
   <path d="M87.94,38.25a10.19,10.19,0,0,0-4.89,1.3V28.91l-5.74,1.27V59.84A17.44,17.44,0,0,0,85.41,62c5.78,0,11.24-3.33,11.24-12.15S91.89,38.25,87.94,38.25ZM85.41,59.07a7.93,7.93,0,0,1-2.36-.37V41.81a6,6,0,0,1,3.09-.49c1.58.15,4.61,1.43,4.61,8.78S87.74,59.07,85.41,59.07Z"/>
   <path d="M40.36,57.41a4.35,4.35,0,0,1-2.9,1.29c-4.29.36-4.12-4.7-4.12-4.7V37.65l-5.75,1.27v15s-.33,8,7.45,8a9.73,9.73,0,0,0,6.23-2l.61,1.1h4.23V37.65l-5.75,1.27Z"/>
@@ -40,10 +49,7 @@ var svgCode = `
   <path d="M112.89,38.38a22.08,22.08,0,0,0-4.42-.32,22.51,22.51,0,0,0-3.15.27,20.34,20.34,0,0,0-2.81.63l-.61,2.25h5.57a6.54,6.54,0,0,1,3.82.9c.93.6,1.4,1.8,1.4,3.6v1.8c-.63-.12-1.3-.23-2-.31a15.75,15.75,0,0,0-2.2-.14,17.48,17.48,0,0,0-3.28.29,6.41,6.41,0,0,0-2.58,1.11,5.35,5.35,0,0,0-1.71,2.2,9,9,0,0,0-.62,3.6,9,9,0,0,0,.62,3.6,5.6,5.6,0,0,0,1.66,2.2A6,6,0,0,0,105,61.17a14.84,14.84,0,0,0,3,.29,8.66,8.66,0,0,0,3.38-.56,8.52,8.52,0,0,0,2.08-1.24h.25l.74,1.35H118V45.71a9.87,9.87,0,0,0-.65-3.85A6.12,6.12,0,0,0,112.89,38.38Zm-.2,19a5.38,5.38,0,0,1-3.14.9,5.05,5.05,0,0,1-1.32-.18,2.8,2.8,0,0,1-1.19-.66,3.52,3.52,0,0,1-.87-1.26,4.83,4.83,0,0,1-.34-2,4.92,4.92,0,0,1,.34-2A3.71,3.71,0,0,1,107,51a2.89,2.89,0,0,1,1.19-.65,8.54,8.54,0,0,1,1.73-.18h2.73Z"/>
   <path d="M138,40.72a6.88,6.88,0,0,0-3-2,13,13,0,0,0-8,0,6.19,6.19,0,0,0-2.75,2,9.49,9.49,0,0,0-1.84,3.62,19.69,19.69,0,0,0-.64,5.42,18.86,18.86,0,0,0,.67,5.42,8.57,8.57,0,0,0,2,3.62,7.21,7.21,0,0,0,3.27,2,17.51,17.51,0,0,0,5,.63,22.85,22.85,0,0,0,3.59-.27,19.91,19.91,0,0,0,2.86-.63l-.62-2.25h-4.84a6.31,6.31,0,0,1-4.69-1.55c-1-1-1.51-3-1.51-5.63h12.9V49.76a19.66,19.66,0,0,0-.65-5.42A9.63,9.63,0,0,0,138,40.72Zm-10.42,7.47a19.56,19.56,0,0,1,.27-3.6,7.62,7.62,0,0,1,.72-2.21A2.76,2.76,0,0,1,131.09,41a2.85,2.85,0,0,1,2.69,1.39,8,8,0,0,1,.71,2.21,18.61,18.61,0,0,1,.28,3.6Z"/>
   </g>
-</svg>
-`
-
-
+*/
 var composite = {
   realProgress: 0, //measured in points, convert when drawing
   //animatedProgress: 0, //should be less than real progress most of the time
@@ -157,15 +163,15 @@ function barAnimateProgress(){
   document.getElementsByClassName('imagesProgressDebug')[0].textContent = `imgs: ${composite.doneImages} / ${composite.imageCollection.length}${composite.images.length==0 ? ' done' : ''}`
   document.getElementsByClassName('dbtxt4')[0].textContent = 'img loading timestamps: ' + composite.imageTimeStamps.join('s ') + 's'
   //document.getElementsByClassName('dbtxt4')[0].textContent = 'animated progress: ' + (animPerc * 100 | 0) + '%'
-  //document.getElementsByClassName('maskPart2')[0].setAttribute('x', perc* presets.svgWidth)
+  //document.getElementsByClassName('maskMovingPart')[0].setAttribute('x', perc* presets.svgWidth)
   if (presets.useCssTransition) {
-    //document.getElementsByClassName('maskPart2')[0].setAttribute('x', animPerc* presets.svgWidth)
+    //document.getElementsByClassName('maskMovingPart')[0].setAttribute('x', animPerc* presets.svgWidth)
     //SO REPLACE THE ANIMATION TO CSS ONE??? ITS SMOOTHER
     //JUST NEED TO ESTIMATE TIME AND USE THAT
-    document.getElementsByClassName('maskPart2')[0].style.setProperty('--maskPosX', perc* presets.svgWidth + 'px')
+    document.getElementsByClassName('maskMovingPart')[0].style.setProperty('--maskPosX', perc* presets.svgWidth + 'px')
   } else {
     //maskPosX
-    document.getElementsByClassName('maskPart2')[0].setAttribute('x', perc* presets.svgWidth)
+    document.getElementsByClassName('maskMovingPart')[0].setAttribute('x', perc* presets.svgWidth)
     //
   }
   
@@ -176,8 +182,8 @@ function barAnimateProgress(){
   //let animationBase = presets.useSmoothing ? animPerc : perc 
   if (perc >= 1) {
     document.getElementsByClassName('documentTimeStampsDebug')[0].innerHTML += 'real progress 100%: ' + parseFloat((new Date().getTime() - startTime)/1000).toFixed(2) + 's<br>'
-    document.getElementsByClassName('maskPart2')[0].addEventListener('transitionend', () => {
-      //console.log('maskPart2 transitionend')
+    document.getElementsByClassName('maskMovingPart')[0].addEventListener('transitionend', () => {
+      //console.log('maskMovingPart transitionend')
       document.getElementsByClassName('documentTimeStampsDebug')[0].innerHTML += 'animation finished at 100%: ' + parseFloat((new Date().getTime() - startTime)/1000).toFixed(2) + 's'
       document.getElementsByClassName('lastTipDebug')[0].textContent = `Дополнительное время до закрытия(ghost time): ${parseFloat(presets.ghostTime / 1000).toFixed(2)}s`
       document.getElementsByClassName('inner-svg')[0].classList.add('svgEndAnimation')
