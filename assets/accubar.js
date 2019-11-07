@@ -76,8 +76,12 @@ var tracker = setInterval(()=>{
       //HERE LOG THE TIME NEEDED
       //ALSO LOG TOTAL TIME IN THE END!
       //SHOW IT AS SEPARATE DEBUG LINES
-      let tmpTime = new Date().getTime()
-      composite.imageTimeStamps.push(parseFloat((tmpTime - startTime)/1000).toFixed(2) + 's')
+      let tmpTime = ((new Date().getTime() - startTime) / 1000).toFixed(2)
+      //so we have tmpTime
+      let animTime = tmpTime / (composite.imageTimeStamps.length + 0.25)
+      console.log('animTime: ', animTime)
+      document.documentElement.style.setProperty('--maskAnimDuration', animTime + 's')
+      composite.imageTimeStamps.push(tmpTime)
       //console.log(`an image completed. At ${tmpTime - startTime}ms since start.`)
       
       break;//one at a time, for a smoother loading
@@ -151,7 +155,7 @@ function barAnimateProgress(){
   document.getElementsByClassName('realProgressDebug')[0].textContent = 'real progress: ' + (perc * 100 | 0) + '%'
   document.getElementsByClassName('dbtxt2')[0].textContent = `document state: ${document.readyState} (${document.readyState == 'interactive' ? 2 : 3} / 3)`
   document.getElementsByClassName('imagesProgressDebug')[0].textContent = `imgs: ${composite.doneImages} / ${composite.imageCollection.length}${composite.images.length==0 ? ' done' : ''}`
-  document.getElementsByClassName('dbtxt4')[0].textContent = 'img loading timestamps: ' + composite.imageTimeStamps.join(' ')
+  document.getElementsByClassName('dbtxt4')[0].textContent = 'img loading timestamps: ' + composite.imageTimeStamps.join('s ') + 's'
   //document.getElementsByClassName('dbtxt4')[0].textContent = 'animated progress: ' + (animPerc * 100 | 0) + '%'
   //document.getElementsByClassName('maskPart2')[0].setAttribute('x', perc* presets.svgWidth)
   if (presets.useCssTransition) {

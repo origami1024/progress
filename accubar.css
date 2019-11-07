@@ -1,6 +1,7 @@
 :root{
   --main_color: orchid;
   --ghostTime: 500ms;
+  --maskAnimDuration: 500ms;
 }
 .accubar {
   position: absolute;
@@ -51,7 +52,7 @@
 
 /* ending for the bar */
 .svgEndAnimation{
-  transform: scale3d(0.2, 1, 0);
+  /* transform: scale3d(0.2, 1, 0); */
   /*spin + opacity out perhaps?*/
   opacity: 0;
 }
@@ -69,6 +70,6 @@
 
 .maskPart2{
   --maskPosX: 0px;
-  transition-duration: .5s;
+  transition-duration: var(--maskAnimDuration);
   transform: translate3d(var(--maskPosX), 0, 0);
 }
