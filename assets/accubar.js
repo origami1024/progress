@@ -1,8 +1,12 @@
 //TODOS: 
 //D. delete the bar element in the end. (leave it now for debugging)
-//E. THINK HOW TO EMBED SVG BEST
-//E.1--svg inside svg
-//E.1.2. will it laod before all other pics?
+// -scripts
+// -css files
+// -move options about pic into script definition line inside html, or somewhere else, so its easy to set them without getting 
+// -svg mask option - circle out
+// -add few mask animation options like - top-down, left-right
+// -refactor, document the code into readme - how it works
+
 
 //////////////
 // Скрипт нужно помещать перед head
@@ -76,7 +80,9 @@ let composite = {
 // tracker - постоянный таймер с интервалом 50мс, реализующий следующие идеи:
 // 1. Проверка img.complete - какие изображения завершили загрузку/произошла ошибка загрузки
 // 1.1. 
-//
+// 2. Изменение переменной composite.realProgress на основании данных о том, что уже загружено
+// 3. Когда composite.realProgress == composite.progressCap, т. е. 100% достигнуто, остановка этого tracker
+// 4. Вызов barAnimateProgress() - функция "отрисовки" элементов и анимации
 //////////////////
 let tracker = setInterval(()=>{
   //Далее следует часть 1, в которой проверяется какие изображения завершили загрузку
@@ -108,6 +114,7 @@ let tracker = setInterval(()=>{
     }
   }
 
+
   //progress change
   composite.realProgress = composite.doneImages * 2 + composite.documentInteractive * 3 + composite.documentComplete
   if (composite.imageCollection.length == composite.images.length + composite.doneImages) {
@@ -119,13 +126,16 @@ let tracker = setInterval(()=>{
   }
   console.log(`progress: ${composite.realProgress} / ${composite.progressCap}`)
   
+
   //delete this timer
   if (composite.progressCap === composite.realProgress) {
     //if (composite.progressCap === composite.animatedProgress) {
     clearInterval(tracker)
     console.log('TRACKER KILLED')
   }
-  //animation()
+  
+
+  ////////
   barAnimateProgress()
 },50)
 
@@ -172,6 +182,8 @@ function initLoadingBar(){
   composite.mask = document.getElementsByClassName('maskMovingPart')[0]
   document.documentElement.style.setProperty('--ghostTime', presets.ghostTime + 'ms')
 }
+
+
 function barAnimateProgress(){
   
   let perc = composite.realProgress / composite.progressCap//, animPerc = composite.animatedProgress / composite.progressCap
@@ -184,11 +196,7 @@ function barAnimateProgress(){
   } else {
     composite.mask.setAttribute('x', perc * presets.svgWidth)
   }
-  
-  //if (perc >= 1) composite.animatedProgress += 0.1
 
-
-  //let animationBase = presets.useSmoothing ? animPerc : perc 
   if (perc >= 1) {
     document.getElementsByClassName('documentTimeStampsDebug')[0].innerHTML += 'real progress 100%: ' + parseFloat((new Date().getTime() - startTime)/1000).toFixed(2) + 's<br>'
     composite.mask.addEventListener('transitionend', () => {
