@@ -72,10 +72,14 @@ let composite = {
 }
 
 
-
-
+//////////////////
+// tracker - постоянный таймер с интервалом 50мс, реализующий следующие идеи:
+// 1. Проверка img.complete - какие изображения завершили загрузку/произошла ошибка загрузки
+// 1.1. 
+//
+//////////////////
 let tracker = setInterval(()=>{
-  //image.complete tracking
+  //Далее следует часть 1, в которой проверяется какие изображения завершили загрузку
   for (let i = 0, icount=composite.images.length; i < icount; i++){
     if (composite.imageCollection[composite.images[i]].complete) {
       if (icount == 1) {
@@ -107,9 +111,9 @@ let tracker = setInterval(()=>{
   //progress change
   composite.realProgress = composite.doneImages * 2 + composite.documentInteractive * 3 + composite.documentComplete
   if (composite.imageCollection.length == composite.images.length + composite.doneImages) {
-    composite.progressCap = composite.imageCollection.length * 2 + 3 + 1
+    composite.progressCap = composite.imageCollection.length * 2 + 3 + 1 //имеджи * 2 + 3 за интерактив + 1 за комплит
   } else {
-    composite.progressCap = composite.images.length * 2 + 3
+    composite.progressCap = composite.images.length * 2 + 3 + 1
     console.log('UNSYNCRONIZED')
     //duno wot to do if this happens yet, can it happen?
   }

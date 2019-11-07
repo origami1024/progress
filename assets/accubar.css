@@ -28,7 +28,7 @@
 .inner-svg {
   width: 30vw;
   transition-duration: var(--ghostTime);
-  outline: 2px dashed indigo;
+  /* outline: 2px dashed indigo; */
 }
 
 
