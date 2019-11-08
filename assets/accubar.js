@@ -36,6 +36,7 @@ let presets = {
 let startTime = new Date().getTime()
 
 
+
 /////////////////
 // Дальше идет свгшка-враппер(шаблонная часть), в которой реализованы следующие идеи:
 // 1. Маска из двух прямоугольников на всю область - один белый - показать всё, второй черный, который будет двигаться при анимации
@@ -50,8 +51,11 @@ let svgCode = `
       <rect class="maskPart1" x="0" y="0" width="${presets.svgWidth}" height="${presets.svgHeight}" fill="white"></rect>
       <rect class="maskMovingPart maskLeftToRight" x="0" y="0" width="${presets.svgWidth}" height="${presets.svgHeight}" fill="black"></rect>
     </mask>
+    <filter id="grayscale">
+      <feColorMatrix type="saturate" values="0.10"/>
+    </filter>
   </defs>
-  ${presets.grayscaleBGCopy ? `<image style="filter: grayscale(1)" xlink:href="${presets.picPath}" x="0" y="0" preserveAspectRatio="none" width="${presets.svgWidth}" height="${presets.svgHeight}" />` : ''}
+  ${presets.grayscaleBGCopy ? `<image filter="url(#grayscale)" xlink:href="${presets.picPath}" x="0" y="0" preserveAspectRatio="none" width="${presets.svgWidth}" height="${presets.svgHeight}" />` : ''}
   <image mask="url(#myMask)" xlink:href="${presets.picPath}" x="0" y="0" preserveAspectRatio="none" width="${presets.svgWidth}" height="${presets.svgHeight}" />
 </svg>
 `
@@ -61,8 +65,8 @@ let svgCode = `
 // composite - объект с внутренними состояниями/моделью данных (в основном о текущем состоянии загрузки)
 ////////////
 let composite = {
-  realProgress: 0, //фактический(в противовес фейковому/анимированному) прогресс, измеряемый в условных единицах; 2 единицы каждое изображение, 3 и 2 единицы на изменениях documentreadystate
-  progressCap: 5, //максимальный прогресс, когда документ догружается до interactive, определяется кол-во изображений и это значение пересчитывается, так что realProgress в конце будет равен progressCap и делением этих двух получаем текущий фактический процент загрузки
+  realProgress: 0, //фактический(в противовес фейковому/анимированному) прогресс, измеряемый в условных единицах; 2 единицы каждое изображение, 2 и 1 единицы на изменениях documentreadystate
+  progressCap: 3, //максимальный прогресс, когда документ догружается до interactive, определяется кол-во изображений и это значение пересчитывается, так что realProgress в конце будет равен progressCap и делением этих двух получаем текущий фактический процент загрузки
   documentInteractive: 0, //догрузился ли док-т до Interactive
   documentComplete: 0, //догрузился ли док-т до Complete
   doneImages: 0, //кол-во изображений, которые либо завершили загрузку, либо на них ошибка загрузки
@@ -116,11 +120,11 @@ let tracker = setInterval(()=>{
 
 
   //progress change
-  composite.realProgress = composite.doneImages * 2 + composite.documentInteractive * 3 + composite.documentComplete
+  composite.realProgress = composite.doneImages * 2 + composite.documentInteractive * 2 + composite.documentComplete
   if (composite.imageCollection.length == composite.images.length + composite.doneImages) {
-    composite.progressCap = composite.imageCollection.length * 2 + 3 + 1 //имеджи * 2 + 3 за интерактив + 1 за комплит
+    composite.progressCap = composite.imageCollection.length * 2 + 2 + 1 //имеджи * 2 + 3 за интерактив + 1 за комплит
   } else {
-    composite.progressCap = composite.images.length * 2 + 3 + 1
+    composite.progressCap = composite.images.length * 2 + 2 + 1
     console.log('UNSYNCRONIZED')
     //duno wot to do if this happens yet, can it happen?
   }
