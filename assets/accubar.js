@@ -9,14 +9,19 @@
 
 
 //////////////
-// Скрипт нужно помещать перед head
+// Конфиг скрипта:
+// 1. Скрипт нужно помещать перед head
+// 2. Стили <link href="assets/accubar.css" rel="stylesheet" />
+// 2. Нужно, чтобы браузер грузил свгшку первой - для этого в HTML в head, нужно добавлять <link rel="preload" href="assets/img/progress_v5.svg" as="image">
 //////////////
 // Чтобы поменять svg на загрузке нужно в presets:
 // 1. изменить picPath
 // 2. изменить svgWidth и svgHeight, на ПРОПОРЦИОНАЛЬНЫЕ тем, что в свг viewBox; пропорционально, чтобы свгшка правильно сжималась/растягивалась по ширине и высоте
 // 3. установить grayscaleBGCopy в нужное значение - true/false
 // 
+//
 //////////////
+
 
 //////////
 // presets - объект пользовательских настроек
@@ -34,7 +39,6 @@ let presets = {
 
 //Время начала работы скрипта/приблизительное время начала загрузки страницы
 let startTime = new Date().getTime()
-
 
 
 /////////////////
@@ -176,6 +180,7 @@ ${svgCode}
 <div class="debuggerTxt dbtxt2"></div>
 <div class="debuggerTxt imagesProgressDebug imgsLoader"></div>
 <div class="debuggerTxt dbtxt4"></div>
+<div class="debuggerTxt dbtxt5"></div>
 <div class="debuggerTxt documentTimeStampsDebug"></div>
 <div class="debuggerTxt lastTipDebug"></div>
 `
