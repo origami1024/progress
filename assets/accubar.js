@@ -76,110 +76,175 @@ let composite = {
 //////////////////
 // tracker - постоянный таймер с интервалом 50мс, реализующий следующие идеи:
 // 1. Проверка img.complete - какие изображения завершили загрузку/произошла ошибка загрузки
-// 1.1. 
 // 2. Изменение переменной composite.realProgress на основании данных о том, что уже загружено
-// 3. Когда composite.realProgress == composite.progressCap, т. е. 100% достигнуто, остановка этого tracker
+// 3. ClearInterval этому таймеру, когда composite.realProgress == composite.progressCap, т. е. 100% достигнуто
 // 4. Вызов barAnimateProgress() - функция "отрисовки" элементов и анимации
+// 5. Подсчет загруженных скриптов, каждый добавляет 1 к realProgress и к progressCap. Такая странная реализация - потому что нельзя узнать сколько будет скриптов заранее.
 //////////////////
 let tracker = setInterval(()=>{
-
-  //counting images - its dynamically changing, so has to be here
-  //OPTIMIZE THIS!
-  composite.imageCollection = document.getElementsByTagName("img")
-  composite.imageCount = composite.imageCollection.length
-
-  //Далее следует часть 1, в которой проверяется какие изображения завершили загрузку
+  //1. Проверка загрузки изображений
+  //Кол-во изображений видимых изображений до полной загрузки dom дерева изменяется,
+  //Нужно проверять их кол-во, пока documentReadyState не станет interactive, когда структура дом дерева полностью построена
+  //Есть потенциал для оптимизации
+  if (composite.documentInteractive == 0) {
+    composite.imageCollection = document.getElementsByTagName("img")
+    composite.imageCount = composite.imageCollection.length
+  }
+  //Сама проверка изображений, за один интервал в прогресс добавляется только первая перебранная картинка, завершившая загрузку, для более плавных анимаций
   for (let i = 0, icount=composite.images.length; i < icount; i++){
     if (composite.imageCollection[composite.images[i]].complete) {
       if (icount == 1) {
-        //do it once when last image is complete
+        //чисто косметическое действие - убрать крутящийся лоадер, когда последний img загружен
         document.getElementsByClassName('imgsLoader')[0].classList.remove('imgsLoader')
       }
       composite.images.splice(i,1)
       composite.doneImages += 1
-      //HERE LOG THE TIME NEEDED
-      //ALSO LOG TOTAL TIME IN THE END!
-      //SHOW IT AS SEPARATE DEBUG LINES
+      //далее на загрузке каждого img добавить время от старта в composite, для рассчетов скорости анимации и дебаггинга
       let tmpTime = ((new Date().getTime() - startTime) / 1000).toFixed(2)
-      //so we have tmpTime
+      composite.imageTimeStamps.push(tmpTime)
       let animTime = tmpTime / (composite.imageTimeStamps.length + 0.25)
-      console.log('animTime: ', animTime)
       if (presets.useCssTransition) {
-        //console.log('right')
         document.documentElement.style.setProperty('--maskAnimDuration', animTime + 's')
-        if ((composite.documentComplete == 1) && (animTime > 1)) document.documentElement.style.setProperty('--maskAnimDuration', '1s')
+        if ((composite.documentComplete == 1) && (animTime > 1)) document.documentElement.style.setProperty('--maskAnimDuration', '1s') // если очень длинная загрузка, то в момент реальных 100% загрузки максимальное время анимации выставить в 1сек
       } else {
         document.documentElement.style.setProperty('--maskAnimDuration', 0)
       }
-      composite.imageTimeStamps.push(tmpTime)
-      //console.log(`an image completed. At ${tmpTime - startTime}ms since start.`)
-      
-      break;//one at a time, for a smoother loading
+      break //break при первом найденом новом img.complete, чтобы сделать анимацию более плавной - не обрабатывать одновременные загрузки в одном цикле, а откладывая их на след
     }
   }
 
-
-  //progress change
+  //2. Изменения и рассчеты фактического значения загрузки - composite.realProgress
   composite.realProgress = composite.doneImages * 2 + composite.documentInteractive * 2 + composite.documentComplete + composite.loadedScripts
   if (composite.imageCollection.length == composite.images.length + composite.doneImages) {
     composite.progressCap = composite.imageCollection.length * 2 + composite.loadedScripts + 2 + 1 //имеджи * 2 + 1 за каждый скрипт + 2 за интерактив + 1 за комплит
   } else {
     composite.progressCap = composite.imageCollection.length * 2 + composite.loadedScripts + 2 + 1
     console.log('UNSYNCRONIZED')
-    //duno wot to do if this happens yet, can it happen?
+    //Сюда попадаешь при несоответствиях в формулах рассчета progressCap и realProgress. Только для дебага, есть потенциал для оптимизации.
   }
   console.log(`progress: ${composite.realProgress} / ${composite.progressCap}`)
   
-
-  //delete this timer
+  //3. Таймер удаляет сам себя, если загрузка дошла до 100%
   if (composite.progressCap === composite.realProgress) {
-    //if (composite.progressCap === composite.animatedProgress) {
     clearInterval(tracker)
     console.log('TRACKER KILLED')
   }
   
-
-  ////////
+  //4. Каждую итерацию таймера пытаемся запустить функцию "отрисовки" анимации (сначала не будет получаться, но при таком варианте запуска начнет работать уже с первых загруженных в дом элементов)
   try {
     barAnimateProgress()
   } catch {}
 
-  //counting loaded scripts
+  //5. Учёт загруженных скриптов
   if (document.scripts.length > composite.loadedScripts) {
     composite.loadedScripts = document.scripts.length
   }
-
-  
 },50)
 
 
-
-
-document.onreadystatechange = () => {
+/////////////
+// readystatechange
+// На interactive уже загружено почти все - кроме картинок
+// На complete всё равно часть картинок еще не загружена
+/////////////
+document.addEventListener('readystatechange', e => {
   console.log('readyStateChange: ', document.readyState)
   if (document.readyState == 'interactive') {
-    //initLoadingBar()
     composite.documentTimeStampsHtml = 'document interactive: ' + parseFloat((new Date().getTime() - startTime)/1000).toFixed(2) + 's<br>'
     document.body.classList.add('stop-scrolling')
     composite.documentInteractive = 1
     composite.imageCollection = document.getElementsByTagName("img")
     composite.imageCount = composite.imageCollection.length
-    //barAnimateProgress()
     for (let i = 0; i < composite.imageCount; i++){
       composite.images.push(i)
     }
-    
   } else
   if (document.readyState == 'complete') {
     composite.documentComplete = 1
     composite.documentTimeStampsHtml += 'document complete: ' + parseFloat((new Date().getTime() - startTime)/1000).toFixed(2) + 's<br>'
+  }
+})
 
+
+/////////
+// Функция добавления bar к документу
+/////////
+function initLoadingBar(){
+  document.body.appendChild(bar)
+  composite.mask = document.getElementsByClassName('maskMovingPart')[0]
+  document.documentElement.style.setProperty('--ghostTime', presets.ghostTime + 'ms')
+}
+
+
+////////
+// Функция "отрисовки" элементов и анимации
+// 
+// Реализация вывода дебага имеет потенциал для оптимизации
+////////
+function barAnimateProgress(){
+  let perc = composite.realProgress / composite.progressCap
+  document.getElementsByClassName('realProgressDebug')[0].textContent = `real progress: ${composite.realProgress} / ${composite.progressCap} (${(perc * 100 | 0)}%)`
+  document.getElementsByClassName('dbtxt2')[0].textContent = `document state: ${document.readyState} (${document.readyState == 'interactive' ? 2 : 3} / 3)`
+  document.getElementsByClassName('imagesProgressDebug')[0].textContent = `imgs: ${composite.doneImages} / ${composite.imageCollection.length}${composite.images.length==0 ? ' done' : ''}`
+  document.getElementsByClassName('dbtxt4')[0].textContent = 'img loading timestamps: ' + composite.imageTimeStamps.join('s ') + 's'
+  document.getElementsByClassName('documentTimeStampsDebug')[0].innerHTML = composite.documentTimeStampsHtml
+  document.getElementsByClassName('scriptsDebug')[0].innerHTML = 'scripts loaded: ' + composite.loadedScripts
+  if (presets.useCssTransition) {
+    composite.mask.style.setProperty('--maskPosX', perc * presets.svgWidth + 'px')
+  } else {
+    composite.mask.setAttribute('x', perc * presets.svgWidth)
+  }
+  //На 100% запускаем последовательность терминации
+  if (perc >= 1) {
+    document.getElementsByClassName('documentTimeStampsDebug')[0] += 'real progress 100%: ' + parseFloat((new Date().getTime() - startTime)/1000).toFixed(2) + 's<br>'
+    //Вешаем вторую часть терминации на завершение transition маски
+    composite.mask.addEventListener('transitionend', () => {
+      document.getElementsByClassName('documentTimeStampsDebug')[0] += 'animation finished at 100%: ' + parseFloat((new Date().getTime() - startTime)/1000).toFixed(2) + 's'
+      document.getElementsByClassName('lastTipDebug')[0].textContent = `Дополнительное время до закрытия(ghost time): ${parseFloat(presets.ghostTime / 1000).toFixed(2)}s`
+      document.getElementsByClassName('inner-svg')[0].classList.add('svgEndAnimation')
+      bar.style.setProperty('transition-duration', 'var(--ghostTime)')
+      bar.classList.add('barEndAnimation')
+      //Вешаем третью часть терминации на таймер со временем presets.ghostTime
+      setTimeout(()=>{
+        bar.addEventListener('transitionend', (e) => {
+          //Полная терминация на окончании transition элемента bar
+          if (e.target == bar) bar.style.display = 'none' //здесь можно удалить его вообще из дом, если дебаг не нужен
+        })
+        document.body.classList.remove('stop-scrolling')
+        console.log('BAR TERMINATED')
+      },presets.ghostTime)
+    })
+    //Далее если presets.useCssTransition выключено, т.е. прогресс двигается без css анимаций, то сразу делаем фэйковый ивент завершения анимации на маске
+    if (!presets.useCssTransition) {
+      let fakeTransitionEnd = document.createEvent('Events')
+      fakeTransitionEnd.initEvent('transitionend', true, false)
+      composite.mask.dispatchEvent(fakeTransitionEnd)
+    }
+  }
+}
+
+////////
+// Функция запуска - с попытками запуститься как можно раньше, не дожидаясь конкретных ивентов
+// Идея украдена из PACE)
+////////
+function start() {
+  try {
+    initLoadingBar()
+  } catch (_error) {
+    NoTargetError = _error
+  }
+  if (!document.querySelector('.accubar')) {
+    //пробуй запустить через 50мс
+    return setTimeout(start, 50)
+  } else {
+    //Успешный запуск
   }
 }
 
 
-
 let bar = document.createElement('div')
+//Прилепляем svg заполненный шаблон к дебаг шаблону и всё это вставляем в bar
+//который в initLoadingBar потом будет прилеплен к body 
 bar.innerHTML = `
 ${svgCode}
 <div class="debuggerTxt realProgressDebug"></div>
@@ -193,67 +258,5 @@ ${svgCode}
 `
 bar.classList.add('accubar')
 
-function initLoadingBar(){
-  document.body.appendChild(bar)
-  composite.mask = document.getElementsByClassName('maskMovingPart')[0]
-  document.documentElement.style.setProperty('--ghostTime', presets.ghostTime + 'ms')
-}
-
-
-function barAnimateProgress(){
-  let perc = composite.realProgress / composite.progressCap//, animPerc = composite.animatedProgress / composite.progressCap
-  document.getElementsByClassName('realProgressDebug')[0].textContent = `real progress: ${composite.realProgress} / ${composite.progressCap} (${(perc * 100 | 0)}%)`
-  document.getElementsByClassName('dbtxt2')[0].textContent = `document state: ${document.readyState} (${document.readyState == 'interactive' ? 2 : 3} / 3)`
-  document.getElementsByClassName('imagesProgressDebug')[0].textContent = `imgs: ${composite.doneImages} / ${composite.imageCollection.length}${composite.images.length==0 ? ' done' : ''}`
-  document.getElementsByClassName('dbtxt4')[0].textContent = 'img loading timestamps: ' + composite.imageTimeStamps.join('s ') + 's'
-  document.getElementsByClassName('documentTimeStampsDebug')[0].innerHTML = composite.documentTimeStampsHtml
-  document.getElementsByClassName('scriptsDebug')[0].innerHTML = 'scripts loaded: ' + composite.loadedScripts
-  if (presets.useCssTransition) {
-    composite.mask.style.setProperty('--maskPosX', perc * presets.svgWidth + 'px')
-  } else {
-    composite.mask.setAttribute('x', perc * presets.svgWidth)
-  }
-
-  if (perc >= 1) {
-    document.getElementsByClassName('documentTimeStampsDebug')[0] += 'real progress 100%: ' + parseFloat((new Date().getTime() - startTime)/1000).toFixed(2) + 's<br>'
-    composite.mask.addEventListener('transitionend', () => {
-      document.getElementsByClassName('documentTimeStampsDebug')[0] += 'animation finished at 100%: ' + parseFloat((new Date().getTime() - startTime)/1000).toFixed(2) + 's'
-      document.getElementsByClassName('lastTipDebug')[0].textContent = `Дополнительное время до закрытия(ghost time): ${parseFloat(presets.ghostTime / 1000).toFixed(2)}s`
-      document.getElementsByClassName('inner-svg')[0].classList.add('svgEndAnimation')
-      bar.style.setProperty('transition-duration', 'var(--ghostTime)')
-      bar.classList.add('barEndAnimation')
-      setTimeout(()=>{
-        
-        bar.addEventListener('transitionend', (e) => {
-          if (e.target == bar) bar.style.display = 'none' //change this for some disappering effect  
-        })
-        
-        document.body.classList.remove('stop-scrolling')
-        console.log('BAR TERMINATED')
-      },presets.ghostTime)
-    })
-    if (!presets.useCssTransition) {
-      let fakeTransitionEnd = document.createEvent('Events')
-      fakeTransitionEnd.initEvent('transitionend', true, false)
-      composite.mask.dispatchEvent(fakeTransitionEnd)
-    }
-    //bar.classList.add('endAnimation')
-    
-  }
-}
-
-
-function start() {
-  try {
-    initLoadingBar()
-  } catch (_error) {
-    NoTargetError = _error
-  }
-  if (!document.querySelector('.accubar')) {
-    //try again
-    return setTimeout(start, 50);
-  } else {
-    //it started succesfully
-  }
-}
+//Запуск!
 start()
