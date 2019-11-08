@@ -11,8 +11,8 @@
 /* Styling of the whole page WRAPPER of the loading bar */
 .accubar {
   position: absolute;
-  top: 1vh;
-  height: 98vh;
+  top: 5vh;
+  height: 94vh;
   width: 90vw;
   left: 4vw;
   outline: 1px solid yellow;

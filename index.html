@@ -1,39 +1,55 @@
 <!DOCTYPE html>
 <html lang="en">
-  <script src="assets/accubar.js"></script>  
+  
 <head>
+  <script src="assets/accubar.js"></script>  
   <link href="assets/accubar.css" rel="stylesheet" />
-  <link rel="preload" href="assets/img/progress_v5.svg" as="image"> 
-
+  <link rel="preload" href="assets/img/visa-5.svg" as="image"> 
+  <!-- <script src="old/pace/pace.min.js"></script> -->
+  <!-- <link href="old/pace/standart100.css" rel="stylesheet" /> -->
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <title>accubar testing page</title>
 </head>
 <style>
-  .view{
+  h5 {
+    margin: 0;
+    color: white;
+    margin-bottom: 5px;
+  }
+  .view {
     display: flex;
     flex-wrap: wrap;
     width: 90vw;
     min-height: 0vh;
   }
-  .photo{
+  .photo {
     height: 26vh;
     margin-right: 2px;
     margin-bottom: 2px;
   }
-  .centeredSection{
-    width: 90vw;
-    
+  .centeredSection {
+    width: 90vw;    
     margin: 0 auto;
     color: white;
   }
-  body{
+  body {
     background-color: black;
     margin: 5px;
   }
+  header {
+    display: flex;
+    justify-content: space-between;
+    
+  }
 </style>
 <body>
+  <header class="centeredSection">
+    <h5 id="header1">header1</h5>
+    <h5 id="header2">header2</h5>
+    <h5 id="header3">header3</h5>
+  </header>
   <main class="centeredSection">
     <div class="view">
       <img class="photo" src="assets/img/photos/alex-iby-JFw6al9RuoE-unsplash.jpg" alt="1">
@@ -72,6 +88,8 @@
     </ul>
     on Unsplash
   </footer>
-  
+  <script src="assets/fakescripts/fakescript1.js"></script>
+  <script src="assets/fakescripts/fakescript2.js"></script>
+  <script src="assets/fakescripts/fakescript3.js"></script>
 </body>
 </html>
