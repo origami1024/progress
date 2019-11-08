@@ -1,6 +1,4 @@
-//TODOS: 
-// -scripts
-// -css files
+//TODOS:
 // -move options about pic into script definition line inside html, or somewhere else, so its easy to set them without getting 
 // -svg mask option - circle out
 // -add few mask animation options like - top-down, left-right
@@ -128,9 +126,9 @@ let tracker = setInterval(()=>{
   //progress change
   composite.realProgress = composite.doneImages * 2 + composite.documentInteractive * 2 + composite.documentComplete + composite.loadedScripts
   if (composite.imageCollection.length == composite.images.length + composite.doneImages) {
-    composite.progressCap = composite.images.length * 2 + composite.loadedScripts + 2 + 1 //имеджи * 2 + 1 за каждый скрипт + 2 за интерактив + 1 за комплит
+    composite.progressCap = composite.imageCollection.length * 2 + composite.loadedScripts + 2 + 1 //имеджи * 2 + 1 за каждый скрипт + 2 за интерактив + 1 за комплит
   } else {
-    composite.progressCap = composite.images.length * 2 + composite.loadedScripts + 2 + 1
+    composite.progressCap = composite.imageCollection.length * 2 + composite.loadedScripts + 2 + 1
     console.log('UNSYNCRONIZED')
     //duno wot to do if this happens yet, can it happen?
   }
