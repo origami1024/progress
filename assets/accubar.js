@@ -76,11 +76,9 @@ let composite = {
   images: [], //массив значения которого - ИНДЕКСЫ в composite.imageCollection, нужен чтобы знать какие именно изображения еще не загружены и их нужно проверять на таймере. Скорее всего, тут есть потенциал для оптимизации
   imageTimeStamps: [], //сюда записываются значения времени окончания загрузки каждого изображания по мере их загрузки
   mask: undefined, //ссылка на двигающийся элемент в свг-враппере
-  documentTimeStampsHtml: '',
+  documentTimeStampsHtml: '', //дебуг текст, сохраняется сюда, для сокращения рассчетов. Потенциал для оптимизации
   loadedScripts: 0, //количество загруженных скриптов
   //ajax? - слежка за аякс запросами не реализована, потенциально может быть нужно, реализовано в PACE
-  //scripts!!!!!!!!!!!!!!!!!!
-  //css files!!!!!!!!!!!!!!!!
 }
 
 
@@ -93,6 +91,12 @@ let composite = {
 // 4. Вызов barAnimateProgress() - функция "отрисовки" элементов и анимации
 //////////////////
 let tracker = setInterval(()=>{
+
+  //counting images - its dynamically changing, so has to be here
+  //OPTIMIZE THIS!
+  composite.imageCollection = document.getElementsByTagName("img")
+  composite.imageCount = composite.imageCollection.length
+
   //Далее следует часть 1, в которой проверяется какие изображения завершили загрузку
   for (let i = 0, icount=composite.images.length; i < icount; i++){
     if (composite.imageCollection[composite.images[i]].complete) {
@@ -112,6 +116,7 @@ let tracker = setInterval(()=>{
       if (presets.useCssTransition) {
         //console.log('right')
         document.documentElement.style.setProperty('--maskAnimDuration', animTime + 's')
+        if ((composite.documentComplete == 1) && (animTime > 0.75)) document.documentElement.style.setProperty('--maskAnimDuration', '0.75s')
       } else {
         document.documentElement.style.setProperty('--maskAnimDuration', 0)
       }
@@ -148,13 +153,12 @@ let tracker = setInterval(()=>{
     barAnimateProgress()
   } catch {}
 
-  ///
-  //console.log('scripts: ', document.getElementsByTagName('script').length)
-  
+  //counting loaded scripts
   if (document.scripts.length > composite.loadedScripts) {
     composite.loadedScripts = document.scripts.length
-    console.log('scripts loaded')
   }
+
+  
 },50)
 
 
@@ -167,7 +171,7 @@ document.onreadystatechange = () => {
     composite.documentTimeStampsHtml = 'document interactive: ' + parseFloat((new Date().getTime() - startTime)/1000).toFixed(2) + 's<br>'
     document.body.classList.add('stop-scrolling')
     composite.documentInteractive = 1
-    composite.imageCollection = document.getElementsByTagName("img");
+    composite.imageCollection = document.getElementsByTagName("img")
     composite.imageCount = composite.imageCollection.length
     //barAnimateProgress()
     for (let i = 0; i < composite.imageCount; i++){
@@ -178,6 +182,7 @@ document.onreadystatechange = () => {
   if (document.readyState == 'complete') {
     composite.documentComplete = 1
     composite.documentTimeStampsHtml += 'document complete: ' + parseFloat((new Date().getTime() - startTime)/1000).toFixed(2) + 's<br>'
+
   }
 }
 
