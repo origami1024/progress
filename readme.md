@@ -1,13 +1,5 @@
 https://origami1024.github.io/progress/
 
-//TODOS: 
-// -scripts
-// -css files
-// -move options about pic into script definition line inside html, or somewhere else, so its easy to set them without getting 
-// -svg mask option - circle out
-// -add few mask animation options like - top-down, left-right
-// -refactor, document the code into readme - how it works
-//delete the bar element in the end. (leave it now for debugging)
 
 ## progressbar of initial document and image loading 
 ## big pics for some loading time
@@ -18,3 +10,10 @@ https://origami1024.github.io/progress/
 ###-black/white mask
 ###-gray - or simple bg svg//possibly filtered grayscale filtered
 ###-other color - svg //possibly grayscale unfiltered?
+
+
+//Идеи по доработке:
+// Сделать чтобы скрипт принимал опции из параметра скрипта - строчки объявления его в html 
+// Другие опции анимации маски, например: с права на лево, снизу вверх
+// Вариант маски - круг из центра с радиусом 0 в полную картинку
+// delete the bar element in the end. (leave it now for debugging)

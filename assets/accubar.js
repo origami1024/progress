@@ -1,22 +1,14 @@
-//TODOS:
-// -move options about pic into script definition line inside html, or somewhere else, so its easy to set them without getting 
-// -svg mask option - circle out
-// -add few mask animation options like - top-down, left-right
-// -refactor, document the code into readme - how it works
-//delete the bar element in the end. (leave it now for debugging)
-
 //////////////
 // Конфиг скрипта:
 // 1. Скрипт нужно помещать перед head
 // 2. Стили <link href="assets/accubar.css" rel="stylesheet" />
 // 2. Нужно, чтобы браузер грузил свгшку первой - для этого в HTML в head, нужно добавлять <link rel="preload" href="assets/img/progress_v5.svg" as="image">
 //////////////
+//////////////
 // Чтобы поменять svg на загрузке нужно в presets:
 // 1. изменить picPath
 // 2. изменить svgWidth и svgHeight, на ПРОПОРЦИОНАЛЬНЫЕ тем, что в свг viewBox; пропорционально, чтобы свгшка правильно сжималась/растягивалась по ширине и высоте
 // 3. установить grayscaleBGCopy в нужное значение - true/false
-// 
-//
 //////////////
 
 
@@ -29,8 +21,8 @@ let presets = {
   grayscaleBGCopy: true, //Нужна ли серая копия свгшки бэкграундом?
   ghostTime: 1750, //"Время в лимбе": после окончания загрузки и последней анимации, анимация скрытия враппера accubar(сейчас opacity в 0) будет длится столько ms
   useCssTransition: true,//Если true - по прогрессу меняется css переменная, которая указана в transform: translate, что обеспечивает плавную анимацию; если false, то просто двигать координату x в части маски в svg
-  //picPath: 'assets/img/progress_v5.svg',//путь к сторонней свгшке
-  picPath: 'assets/img/visa-5.svg',
+  //picPath: 'assets/img/progress_v5.svg',//
+  picPath: 'assets/img/visa-5.svg', //Путь к сторонней свгшке. Она должна грузится как можно раньше, поэтому эту часть нужно продублировать в html в head, по типу: <link rel="preload" href="assets/img/visa-5.svg" as="image">
 }
 
 
@@ -38,10 +30,9 @@ let presets = {
 let startTime = new Date().getTime()
 
 
-
 /////////////////
 // Дальше идет свгшка-враппер(шаблонная часть), в которой реализованы следующие идеи:
-// 1. Маска из двух прямоугольников на всю область - один белый - показать всё, второй черный, который будет двигаться при анимации
+// 1. Маска из двух прямоугольников на всю svg: 1) белый - показать всё, второй черный, который двигается при анимации. Здесь есть потенциал для оптимизации - сделать одним прямоугольником
 // 2. Сторонняя основная свгшка подгружается из файла, по пути из presets.picPath
 // 3. Если presets.grayscaleBGCopy задан true, то свгшка вставляется 2 раз с чернобелым фильтром - как фон
 // 4. Свгшка и маска растянуты на весь viewBox, и изменяются через presets.svgWidth, presets.svgHeight
@@ -64,7 +55,7 @@ let svgCode = `
 
 
 ////////////
-// composite - объект с внутренними состояниями/моделью данных (в основном о текущем состоянии загрузки)
+// composite - объект с основными внутренними состояниями/моделью данных
 ////////////
 let composite = {
   realProgress: 0, //фактический(в противовес фейковому/анимированному) прогресс, измеряемый в условных единицах; 2 единицы каждое изображение, 2 и 1 единицы на изменениях documentreadystate
@@ -116,7 +107,7 @@ let tracker = setInterval(()=>{
       if (presets.useCssTransition) {
         //console.log('right')
         document.documentElement.style.setProperty('--maskAnimDuration', animTime + 's')
-        if ((composite.documentComplete == 1) && (animTime > 0.75)) document.documentElement.style.setProperty('--maskAnimDuration', '0.75s')
+        if ((composite.documentComplete == 1) && (animTime > 1)) document.documentElement.style.setProperty('--maskAnimDuration', '1s')
       } else {
         document.documentElement.style.setProperty('--maskAnimDuration', 0)
       }
