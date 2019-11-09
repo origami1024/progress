@@ -82,7 +82,7 @@ let composite = {
   documentComplete: 0, //догрузился ли док-т до Complete
   doneImages: 0, //кол-во изображений, которые либо завершили загрузку, либо на них ошибка загрузки
   imageCollection: [], //html-коллекция, с ссылками на все img на странице
-  images: [], //массив значения которого - ИНДЕКСЫ в composite.imageCollection, нужен чтобы знать какие именно изображения еще не загружены и их нужно проверять на таймере. Скорее всего, тут есть потенциал для оптимизации
+  //images: [], //массив значения которого - ИНДЕКСЫ в composite.imageCollection, нужен чтобы знать какие именно изображения еще не загружены и их нужно проверять на таймере. Скорее всего, тут есть потенциал для оптимизации
   imageTimeStamps: [], //сюда записываются значения времени окончания загрузки каждого изображания по мере их загрузки
   mask: undefined, //ссылка на двигающийся элемент в свг-враппере
   documentTimeStampsHtml: '', //дебуг текст, сохраняется сюда, для сокращения рассчетов. Потенциал для оптимизации
@@ -104,44 +104,42 @@ let tracker = setInterval(()=>{
   //Кол-во изображений видимых изображений до полной загрузки dom дерева изменяется,
   //Нужно проверять их кол-во, пока documentReadyState не станет interactive, когда структура дом дерева полностью построена
   //Есть потенциал для оптимизации
-  if (composite.documentInteractive == 0) {
-    composite.imageCollection = document.getElementsByTagName("img")
-    composite.imageCount = composite.imageCollection.length
-  }
+      // if (composite.documentInteractive == 0) {
+      //   composite.imageCollection = document.getElementsByTagName("img")
+      //   composite.imageCount = composite.imageCollection.length
+      // }
   //Сама проверка изображений, за один интервал в прогресс добавляется только первая перебранная картинка, завершившая загрузку, для более плавных анимаций
-  for (let i = 0, icount=composite.images.length; i < icount; i++){
-    if (composite.imageCollection[composite.images[i]].complete) {
-      if (icount == 1) {
-        //чисто косметическое действие - убрать крутящийся лоадер, когда последний img загружен
-        document.getElementsByClassName('imgsLoader')[0].classList.remove('imgsLoader')
+  composite.imageCollection = document.getElementsByTagName("img")
+  for (let i = 0, icount=composite.imageCollection.length; i < icount; i++){
+    if (composite.imageCollection[i].complete) {
+      if (composite.imageCollection[i].dataset['loadcomplete'] != 1) {
+        composite.imageCollection[i].dataset['loadcomplete'] = 1
+        if (icount == 1) {
+          //чисто косметическое действие - убрать крутящийся лоадер, когда последний img загружен
+          document.getElementsByClassName('imgsLoader')[0].classList.remove('imgsLoader')
+        }
+        
+        composite.doneImages += 1
+        //далее на загрузке каждого img добавить время от старта в composite, для рассчетов скорости анимации и дебаггинга
+        let tmpTime = ((new Date().getTime() - startTime) / 1000).toFixed(2)
+        composite.imageTimeStamps.push(tmpTime)
+        let animTime = tmpTime / (composite.imageTimeStamps.length + 0.25)
+        if (presets.useCssTransition) {
+          if (animTime < 0.4) animTime = 0.4 // если очень быстро, то замедляем
+          if ((composite.documentComplete == 1) && (animTime > 1)) animTime = 1 // если очень длинная загрузка, то в момент реальных 100% загрузки максимальное время анимации выставить в 1сек
+          document.documentElement.style.setProperty('--maskAnimDuration', animTime + 's')        
+        } else {
+          document.documentElement.style.setProperty('--maskAnimDuration', 0)
+          console.log('no animation mode')
+        }
+        break //break при первом найденом новом img.complete, чтобы сделать анимацию более плавной - не обрабатывать одновременные загрузки в одном цикле, а откладывая их на след
       }
-      composite.images.splice(i,1)
-      composite.doneImages += 1
-      //далее на загрузке каждого img добавить время от старта в composite, для рассчетов скорости анимации и дебаггинга
-      let tmpTime = ((new Date().getTime() - startTime) / 1000).toFixed(2)
-      composite.imageTimeStamps.push(tmpTime)
-      let animTime = tmpTime / (composite.imageTimeStamps.length + 0.25)
-      if (presets.useCssTransition) {
-        if (animTime < 0.4) animTime = 0.4 // если очень быстро, то замедляем
-        if ((composite.documentComplete == 1) && (animTime > 1)) animTime = 1 // если очень длинная загрузка, то в момент реальных 100% загрузки максимальное время анимации выставить в 1сек
-        document.documentElement.style.setProperty('--maskAnimDuration', animTime + 's')        
-      } else {
-        document.documentElement.style.setProperty('--maskAnimDuration', 0)
-        console.log('no animation mode')
-      }
-      break //break при первом найденом новом img.complete, чтобы сделать анимацию более плавной - не обрабатывать одновременные загрузки в одном цикле, а откладывая их на след
     }
   }
 
   //2. Изменения и рассчеты фактического значения загрузки - composite.realProgress
   composite.realProgress = composite.doneImages * 2 + composite.documentInteractive * 2 + composite.documentComplete + composite.loadedScripts
-  if (composite.imageCollection.length == composite.images.length + composite.doneImages) {
-    composite.progressCap = composite.imageCollection.length * 2 + composite.loadedScripts + 2 + 1 //имеджи * 2 + 1 за каждый скрипт + 2 за интерактив + 1 за комплит
-  } else {
-    composite.progressCap = composite.imageCollection.length * 2 + composite.loadedScripts + 2 + 1
-    console.log('UNSYNCRONIZED')
-    //Сюда попадаешь при несоответствиях в формулах рассчета progressCap и realProgress. Только для дебага, есть потенциал для оптимизации.
-  }
+  composite.progressCap = composite.imageCollection.length * 2 + composite.loadedScripts + 2 + 1 //имеджи * 2 + 1 за каждый скрипт + 2 за интерактив + 1 за комплит
   console.log(`progress: ${composite.realProgress} / ${composite.progressCap}`)
   
   //3. Таймер удаляет сам себя, если загрузка дошла до 100%
@@ -173,11 +171,11 @@ document.addEventListener('readystatechange', e => {
     composite.documentTimeStampsHtml = 'document interactive: ' + parseFloat((new Date().getTime() - startTime)/1000).toFixed(2) + 's<br>'
     document.body.classList.add('stop-scrolling')
     composite.documentInteractive = 1
-    composite.imageCollection = document.getElementsByTagName("img")
-    composite.imageCount = composite.imageCollection.length
-    for (let i = 0; i < composite.imageCount; i++){
-      composite.images.push(i)
-    }
+    //  composite.imageCollection = document.getElementsByTagName("img")
+    //  composite.imageCount = composite.imageCollection.length
+    //   for (let i = 0; i < composite.imageCount; i++){
+    //     composite.images.push(i)
+    //   }
   } else
   if (document.readyState == 'complete') {
     composite.documentComplete = 1
@@ -205,7 +203,7 @@ function barAnimateProgress(){
   let perc = composite.realProgress / composite.progressCap
   document.getElementsByClassName('realProgressDebug')[0].textContent = `real progress: ${composite.realProgress} / ${composite.progressCap} (${(perc * 100 | 0)}%)`
   document.getElementsByClassName('dbtxt2')[0].textContent = `document state: ${document.readyState} (${document.readyState == 'interactive' ? 2 : 3} / 3)`
-  document.getElementsByClassName('imagesProgressDebug')[0].textContent = `imgs: ${composite.doneImages} / ${composite.imageCollection.length}${composite.images.length==0 ? ' done' : ''}`
+  document.getElementsByClassName('imagesProgressDebug')[0].textContent = `imgs: ${composite.doneImages} / ${composite.imageCollection.length}${composite.doneImages == composite.imageCollection.length ? ' done' : ''}`
   document.getElementsByClassName('dbtxt4')[0].textContent = 'img loading timestamps: ' + composite.imageTimeStamps.join('s ') + 's'
   document.getElementsByClassName('documentTimeStampsDebug')[0].innerHTML = composite.documentTimeStampsHtml
   document.getElementsByClassName('scriptsDebug')[0].innerHTML = 'scripts loaded: ' + composite.loadedScripts
