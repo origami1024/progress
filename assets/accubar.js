@@ -101,25 +101,17 @@ let composite = {
 //////////////////
 let tracker = setInterval(()=>{
   //1. Проверка загрузки изображений
-  //Кол-во изображений видимых изображений до полной загрузки dom дерева изменяется,
-  //Нужно проверять их кол-во, пока documentReadyState не станет interactive, когда структура дом дерева полностью построена
-  //Есть потенциал для оптимизации
-      // if (composite.documentInteractive == 0) {
-      //   composite.imageCollection = document.getElementsByTagName("img")
-      //   composite.imageCount = composite.imageCollection.length
-      // }
-  //Сама проверка изображений, за один интервал в прогресс добавляется только первая перебранная картинка, завершившая загрузку, для более плавных анимаций
+  //за один интервал в прогресс добавляется только первая перебранная картинка, завершившая загрузку, для более плавных анимаций
   composite.imageCollection = document.getElementsByTagName("img")
   for (let i = 0, icount=composite.imageCollection.length; i < icount; i++){
     if (composite.imageCollection[i].complete) {
       if (composite.imageCollection[i].dataset['loadcomplete'] != 1) {
         composite.imageCollection[i].dataset['loadcomplete'] = 1
-        if (icount == 1) {
+        composite.doneImages += 1
+        if (composite.doneImages == composite.imageCollection.length) {
           //чисто косметическое действие - убрать крутящийся лоадер, когда последний img загружен
           document.getElementsByClassName('imgsLoader')[0].classList.remove('imgsLoader')
         }
-        
-        composite.doneImages += 1
         //далее на загрузке каждого img добавить время от старта в composite, для рассчетов скорости анимации и дебаггинга
         let tmpTime = ((new Date().getTime() - startTime) / 1000).toFixed(2)
         composite.imageTimeStamps.push(tmpTime)
@@ -162,8 +154,6 @@ let tracker = setInterval(()=>{
 
 /////////////
 // readystatechange
-// На interactive уже загружено почти все - кроме картинок
-// На complete всё равно часть картинок еще не загружена
 /////////////
 document.addEventListener('readystatechange', e => {
   console.log('readyStateChange: ', document.readyState)
@@ -171,11 +161,6 @@ document.addEventListener('readystatechange', e => {
     composite.documentTimeStampsHtml = 'document interactive: ' + parseFloat((new Date().getTime() - startTime)/1000).toFixed(2) + 's<br>'
     document.body.classList.add('stop-scrolling')
     composite.documentInteractive = 1
-    //  composite.imageCollection = document.getElementsByTagName("img")
-    //  composite.imageCount = composite.imageCollection.length
-    //   for (let i = 0; i < composite.imageCount; i++){
-    //     composite.images.push(i)
-    //   }
   } else
   if (document.readyState == 'complete') {
     composite.documentComplete = 1
