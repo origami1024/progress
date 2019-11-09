@@ -203,7 +203,7 @@ function barAnimateProgress(){
     //Вешаем вторую часть терминации на завершение transition маски
     composite.mask.addEventListener('transitionend', () => {
       document.getElementsByClassName('documentTimeStampsDebug')[0] += 'animation finished at 100%: ' + parseFloat((new Date().getTime() - startTime)/1000).toFixed(2) + 's'
-      document.getElementsByClassName('lastTipDebug')[0].textContent = `Дополнительное время до закрытия(ghost time): ${parseFloat(presets.ghostTime / 1000).toFixed(2)}s`
+      document.getElementsByClassName('lastTipDebug')[0].textContent = `Время до закрытия(ghost time): ${parseFloat(presets.ghostTime / 1000).toFixed(2)}s`
       //document.getElementsByClassName('inner-svg')[0].classList.add('svgEndAnimation')
       
       //Вешаем третью часть терминации на таймер со временем presets.ghostTime
@@ -264,6 +264,7 @@ ${svgCode}
 <div class="debuggerTxt dbtxt5"></div>
 <div class="debuggerTxt documentTimeStampsDebug"></div>
 <div class="debuggerTxt lastTipDebug"></div>
+<div class="debuggerTxt"></div>
 `
 bar.classList.add('accubar')
 
