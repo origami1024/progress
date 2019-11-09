@@ -207,7 +207,10 @@ function barAnimateProgress(){
       //document.getElementsByClassName('inner-svg')[0].classList.add('svgEndAnimation')
       
       //Вешаем третью часть терминации на таймер со временем presets.ghostTime
-      setTimeout(()=>{  
+      document.getElementsByClassName('lastTipDebug')[0].classList.add('imgsLoader')
+      setTimeout(()=>{
+        document.getElementsByClassName('lastTipDebug')[0].classList.remove('imgsLoader')
+        document.getElementsByClassName('lastTipDebug')[0].textContent += ' done'
         bar.style.setProperty('transition-duration', '1s')
         bar.classList.add('barEndAnimation')
         setTimeout(()=>{

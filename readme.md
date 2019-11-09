@@ -39,3 +39,7 @@ https://origami1024.github.io/progress/
 1. изменить picPath
 2. изменить svgWidth и svgHeight, на ПРОПОРЦИОНАЛЬНЫЕ тем, что в свг viewBox; пропорционально, чтобы свгшка правильно сжималась/растягивалась по ширине и высоте
 3. установить grayscaleBGCopy в нужное значение - true/false
+
+#### Источники
+1. Pace.js https://github.hubspot.com/pace/. Хорошая библиотека, пытался изначально использовать, взял у них много хороших идей.
+2. Это обсуждение https://stackoverflow.com/questions/14218607/javascript-loading-progress-of-an-image
