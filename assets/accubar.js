@@ -121,10 +121,12 @@ let tracker = setInterval(()=>{
       composite.imageTimeStamps.push(tmpTime)
       let animTime = tmpTime / (composite.imageTimeStamps.length + 0.25)
       if (presets.useCssTransition) {
-        document.documentElement.style.setProperty('--maskAnimDuration', animTime + 's')
-        if ((composite.documentComplete == 1) && (animTime > 1)) document.documentElement.style.setProperty('--maskAnimDuration', '1s') // если очень длинная загрузка, то в момент реальных 100% загрузки максимальное время анимации выставить в 1сек
+        if (animTime < 0.4) animTime = 0.4 // если очень быстро, то замедляем
+        if ((composite.documentComplete == 1) && (animTime > 1)) animTime = 1 // если очень длинная загрузка, то в момент реальных 100% загрузки максимальное время анимации выставить в 1сек
+        document.documentElement.style.setProperty('--maskAnimDuration', animTime + 's')        
       } else {
         document.documentElement.style.setProperty('--maskAnimDuration', 0)
+        console.log('no animation mode')
       }
       break //break при первом найденом новом img.complete, чтобы сделать анимацию более плавной - не обрабатывать одновременные загрузки в одном цикле, а откладывая их на след
     }
