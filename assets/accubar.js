@@ -2,7 +2,8 @@
 // Конфиг скрипта:
 // 1. Скрипт нужно помещать перед head
 // 2. Стили <link href="assets/accubar.css" rel="stylesheet" />
-// 2. Нужно, чтобы браузер грузил свгшку первой - для этого в HTML в head, нужно добавлять <link rel="preload" href="assets/img/progress_v5.svg" as="image">
+// 3. Нужно, чтобы браузер грузил свгшку первой - для этого в HTML в head, нужно добавлять <link rel="preload" href="assets/img/progress_v5.svg" as="image">
+// 4. Скрипт принимает такие параметры в теге: data-svgw, data-svgh, data-grayscale, data-ghostdur, data-cssanim, data-picPath
 //////////////
 //////////////
 // Чтобы поменять svg на загрузке нужно в presets (Или лучше задать эти параметры скрипту):
