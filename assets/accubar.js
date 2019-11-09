@@ -204,17 +204,20 @@ function barAnimateProgress(){
     composite.mask.addEventListener('transitionend', () => {
       document.getElementsByClassName('documentTimeStampsDebug')[0] += 'animation finished at 100%: ' + parseFloat((new Date().getTime() - startTime)/1000).toFixed(2) + 's'
       document.getElementsByClassName('lastTipDebug')[0].textContent = `Дополнительное время до закрытия(ghost time): ${parseFloat(presets.ghostTime / 1000).toFixed(2)}s`
-      document.getElementsByClassName('inner-svg')[0].classList.add('svgEndAnimation')
-      bar.style.setProperty('transition-duration', 'var(--ghostTime)')
-      bar.classList.add('barEndAnimation')
+      //document.getElementsByClassName('inner-svg')[0].classList.add('svgEndAnimation')
+      
       //Вешаем третью часть терминации на таймер со временем presets.ghostTime
-      setTimeout(()=>{
-        bar.addEventListener('transitionend', (e) => {
-          //Полная терминация на окончании transition элемента bar
-          if (e.target == bar) bar.style.display = 'none' //здесь можно удалить его вообще из дом, если дебаг не нужен
-        })
-        document.body.classList.remove('stop-scrolling')
-        console.log('BAR TERMINATED')
+      setTimeout(()=>{  
+        bar.style.setProperty('transition-duration', '1s')
+        bar.classList.add('barEndAnimation')
+        setTimeout(()=>{
+          bar.addEventListener('transitionend', (e) => {
+            //Полная терминация на окончании transition элемента bar
+            if (e.target == bar) bar.style.display = 'none' //здесь можно удалить его вообще из дом, если дебаг не нужен
+          })
+          document.body.classList.remove('stop-scrolling')
+          console.log('BAR TERMINATED')
+        }, 1000)
       },presets.ghostTime)
     })
     //Далее если presets.useCssTransition выключено, т.е. прогресс двигается без css анимаций, то сразу делаем фэйковый ивент завершения анимации на маске
