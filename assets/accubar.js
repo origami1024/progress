@@ -5,7 +5,7 @@
 // 2. Нужно, чтобы браузер грузил свгшку первой - для этого в HTML в head, нужно добавлять <link rel="preload" href="assets/img/progress_v5.svg" as="image">
 //////////////
 //////////////
-// Чтобы поменять svg на загрузке нужно в presets:
+// Чтобы поменять svg на загрузке нужно в presets (Или лучше задать эти параметры скрипту):
 // 1. изменить picPath
 // 2. изменить svgWidth и svgHeight, на ПРОПОРЦИОНАЛЬНЫЕ тем, что в свг viewBox; пропорционально, чтобы свгшка правильно сжималась/растягивалась по ширине и высоте
 // 3. установить grayscaleBGCopy в нужное значение - true/false
@@ -21,8 +21,25 @@ let presets = {
   grayscaleBGCopy: true, //Нужна ли серая копия свгшки бэкграундом?
   ghostTime: 1750, //"Время в лимбе": после окончания загрузки и последней анимации, анимация скрытия враппера accubar(сейчас opacity в 0) будет длится столько ms
   useCssTransition: true,//Если true - по прогрессу меняется css переменная, которая указана в transform: translate, что обеспечивает плавную анимацию; если false, то просто двигать координату x в части маски в svg
-  //picPath: 'assets/img/progress_v5.svg',//
-  picPath: 'assets/img/visa-5.svg', //Путь к сторонней свгшке. Она должна грузится как можно раньше, поэтому эту часть нужно продублировать в html в head, по типу: <link rel="preload" href="assets/img/visa-5.svg" as="image">
+  picPath: 'assets/img/progress_v5.svg', //Путь к сторонней свгшке. Она должна грузится как можно раньше, поэтому эту часть нужно продублировать в html в head, по типу: <link rel="preload" href="assets/img/visa-5.svg" as="image">
+}
+
+
+//////
+// Принимаем настройки из параметров к script
+// Возможные параметры: data-svgw, data-svgh, data-grayscale, data-ghostdur, data-cssanim, data-picPath
+//////
+for (let index = 0; index < document.scripts.length; index++) {
+  if (document.scripts[index].src.split('/').pop() ==='accubar.js') {
+    //Возможно нужно добавить проверку на валидность данных
+    if (document.scripts[index].getAttribute('data-svgw')) presets.svgWidth = document.scripts[index].getAttribute('data-svgw')
+    if (document.scripts[index].getAttribute('data-svgh')) presets.svgHeight = document.scripts[index].getAttribute('data-svgh')
+    if (document.scripts[index].getAttribute('data-grayscale') == "false") presets.grayscaleBGCopy = false
+    if (document.scripts[index].getAttribute('data-ghostdur')) presets.ghostTime = document.scripts[index].getAttribute('data-ghostdur')
+    if (document.scripts[index].getAttribute('data-cssanim') == "false") presets.useCssTransition = false
+    if (document.scripts[index].getAttribute('data-picPath')) presets.picPath = document.scripts[index].getAttribute('data-picPath')
+    break;
+  }
 }
 
 
