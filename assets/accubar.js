@@ -65,8 +65,16 @@ let svgCode = `
     <filter id="grayscale">
       <feColorMatrix type="saturate" values="0.10"/>
     </filter>
+    <filter id="linear">
+    <feColorMatrix
+      type="matrix"
+      values="1 -3 -3 -0.4 0
+              3 1.3 -0.3 -0.2 -0.2
+              0 0.3 1 0 0
+              0 0 0 1 0 "/>
+    </filter>
   </defs>
-  ${presets.grayscaleBGCopy ? `<image filter="url(#grayscale)" xlink:href="${presets.picPath}" x="0" y="0" preserveAspectRatio="none" width="${presets.svgWidth}" height="${presets.svgHeight}" />` : ''}
+  ${presets.grayscaleBGCopy ? `<image filter="brightness(0.5) grayscale(100%)" xlink:href="${presets.picPath}" x="0" y="0" preserveAspectRatio="none" width="${presets.svgWidth}" height="${presets.svgHeight}" />` : ''}
   <image mask="url(#myMask)" xlink:href="${presets.picPath}" x="0" y="0" preserveAspectRatio="none" width="${presets.svgWidth}" height="${presets.svgHeight}" />
 </svg>
 `
