@@ -20,6 +20,7 @@ let presets = {
   svgWidth: 142, //Длина(ее пропорция) viewBox в сторонней свгшке
   svgHeight: 62, //Высота(ее пропорция) viewBox в сторонней свгшке
   grayscaleBGCopy: true, //Нужна ли серая копия свгшки бэкграундом?
+  maskBGColor: '#333', //хексы длиной 7 и 4 символа
   ghostTime: 1750, //"Время в лимбе": после окончания загрузки и последней анимации, анимация скрытия враппера accubar(сейчас opacity в 0) будет длится столько ms
   useCssTransition: true,//Если true - по прогрессу меняется css переменная, которая указана в transform: translate, что обеспечивает плавную анимацию; если false, то просто двигать координату x в части маски в svg
   picPath: 'assets/img/progress_v5.svg', //Путь к сторонней свгшке. Она должна грузится как можно раньше, поэтому эту часть нужно продублировать в html в head, по типу: <link rel="preload" href="assets/img/visa-5.svg" as="image">
@@ -28,7 +29,7 @@ let presets = {
 
 //////
 // Принимаем настройки из параметров к script
-// Возможные параметры: data-svgw, data-svgh, data-grayscale, data-ghostdur, data-cssanim, data-picPath
+// Возможные параметры: data-svgw, data-svgh, data-grayscale, data-ghostdur, data-cssanim, data-picPath, data-maskbg
 //////
 for (let index = 0; index < document.scripts.length; index++) {
   if (document.scripts[index].src.split('/').pop() ==='accubar.js') {
@@ -39,6 +40,7 @@ for (let index = 0; index < document.scripts.length; index++) {
     if (document.scripts[index].getAttribute('data-ghostdur')) presets.ghostTime = document.scripts[index].getAttribute('data-ghostdur')
     if (document.scripts[index].getAttribute('data-cssanim') == "false") presets.useCssTransition = false
     if (document.scripts[index].getAttribute('data-picPath')) presets.picPath = document.scripts[index].getAttribute('data-picPath')
+    if (document.scripts[index].getAttribute('data-maskbg')) presets.maskBGColor = document.scripts[index].getAttribute('data-maskbg')
     break;
   }
 }
@@ -62,19 +64,22 @@ let svgCode = `
       <rect class="maskPart1" x="0" y="0" width="${presets.svgWidth}" height="${presets.svgHeight}" fill="white"></rect>
       <rect class="maskMovingPart maskLeftToRight" x="0" y="0" width="${presets.svgWidth}" height="${presets.svgHeight}" fill="black"></rect>
     </mask>
-    <filter id="grayscale">
-      <feColorMatrix type="saturate" values="0.10"/>
-    </filter>
-    <filter id="linear">
-    <feColorMatrix
-      type="matrix"
-      values="1 -3 -3 -0.4 0
-              3 1.3 -0.3 -0.2 -0.2
-              0 0.3 1 0 0
-              0 0 0 1 0 "/>
+    <filter id="composite">
+      <feComponentTransfer in="SourceGraphic" result="A"> <!--Первоначальное снижение яркости, чтобы не было чисто белого, который не проходит grayscale-->
+        <feFuncR type="linear" slope="0.5"/>
+        <feFuncG type="linear" slope="0.5"/>
+        <feFuncB type="linear" slope="0.5"/>
+      </feComponentTransfer>
+      <feColorMatrix type="saturate" in="A" result="B" values="0.1"/> <!--GRAYSCALE-->
+      <feComponentTransfer in="B" result="C">
+        <feFuncR type="linear" slope="30"/>
+        <feFuncG type="linear" slope="30"/>
+        <feFuncB type="linear" slope="30"/>
+      </feComponentTransfer>
+      <feColorMatrix type="matrix" in="C" result="D" values="${hexToFe(presets.maskBGColor)}" /> <!--NEW COLOR-->
     </filter>
   </defs>
-  ${presets.grayscaleBGCopy ? `<image filter="brightness(0.5) grayscale(100%)" xlink:href="${presets.picPath}" x="0" y="0" preserveAspectRatio="none" width="${presets.svgWidth}" height="${presets.svgHeight}" />` : ''}
+  ${presets.grayscaleBGCopy ? `<image filter="url(#composite)" xlink:href="${presets.picPath}" x="0" y="0" preserveAspectRatio="none" width="${presets.svgWidth}" height="${presets.svgHeight}" />` : ''}
   <image mask="url(#myMask)" xlink:href="${presets.picPath}" x="0" y="0" preserveAspectRatio="none" width="${presets.svgWidth}" height="${presets.svgHeight}" />
 </svg>
 `
@@ -278,3 +283,21 @@ bar.classList.add('accubar')
 
 //Запуск!
 start()
+
+
+//конвертация hex в 0-1
+function hexToFe(hex) {
+  let r, g, b
+  if (hex.length==7){
+    r = parseInt(hex.substring(1,3),16) / 255
+    g = parseInt(hex.substring(3,5),16) / 255
+    b = parseInt(hex.substring(5,7),16) / 255
+  } else if (hex.length==4){
+    r = parseInt(hex.substring(1,2),16) / 15
+    g = parseInt(hex.substring(2,3),16) / 15
+    b = parseInt(hex.substring(3,4),16) / 15
+  }
+  console.log(`${r.toFixed(2)} 0 0 0 0 0 ${g.toFixed(2)} 0 0 0 0 0 ${b.toFixed(2)} 0 0 0 0 0 1 0`)
+  return r.toFixed(2) +" 0 0 0 0 0 " + g.toFixed(2) + " 0 0 0 0 0 " + b.toFixed(2) + " 0 0 0 0 0 1 0"
+  return `${r.toFixed(2)} 0 0 0 0 0 ${g.toFixed(2)} 0 0 0 0 0 ${b.toFixed(2)} 0 0 0 0 0 1 0`
+}

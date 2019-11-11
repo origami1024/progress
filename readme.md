@@ -26,7 +26,7 @@ https://origami1024.github.io/progress/
 1. Скрипт нужно помещать перед head
 2. Стили <link href="assets/accubar.css" rel="stylesheet" />
 3. Нужно, чтобы браузер грузил свгшку первой - для этого в HTML в head, нужно добавлять <link rel="preload" href="assets/img/progress_v5.svg" as="image">
-4. Скрипт принимает такие параметры в теге: data-svgw, data-svgh, data-grayscale, data-ghostdur, data-cssanim, data-picPath
+4. Скрипт принимает такие параметры в теге: data-svgw, data-svgh, data-grayscale, data-ghostdur, data-cssanim, data-picPath, data-maskbg
 
 
 #### Пример подключения к страничке (В html в head):
