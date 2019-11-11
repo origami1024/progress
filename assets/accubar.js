@@ -6,10 +6,20 @@
 // 4. Скрипт принимает такие параметры в теге: data-svgw, data-svgh, data-grayscale, data-ghostdur, data-cssanim, data-picPath
 //////////////
 //////////////
-// Чтобы поменять svg на загрузке нужно в presets (Или лучше задать эти параметры скрипту):
-// 1. изменить picPath
-// 2. изменить svgWidth и svgHeight, на ПРОПОРЦИОНАЛЬНЫЕ тем, что в свг viewBox; пропорционально, чтобы свгшка правильно сжималась/растягивалась по ширине и высоте
-// 3. установить grayscaleBGCopy в нужное значение - true/false
+// Пример рабочего head
+/*
+<link rel="preload" href="assets/img/logo2.svg" as="image">
+<script src="assets/accubar.js"
+  data-maskbg=#333333
+  data-picPath="assets/img/logo2.svg"
+  data-ghostdur=0
+  data-svgw=142
+  data-svgh=62
+  data-grayscale="true"
+  data-cssanim="true">
+</script>
+<link href="assets/accubar.css" rel="stylesheet" />
+*/
 //////////////
 
 
@@ -95,7 +105,6 @@ let composite = {
   documentComplete: 0, //догрузился ли док-т до Complete
   doneImages: 0, //кол-во изображений, которые либо завершили загрузку, либо на них ошибка загрузки
   imageCollection: [], //html-коллекция, с ссылками на все img на странице
-  //images: [], //массив значения которого - ИНДЕКСЫ в composite.imageCollection, нужен чтобы знать какие именно изображения еще не загружены и их нужно проверять на таймере. Скорее всего, тут есть потенциал для оптимизации
   imageTimeStamps: [], //сюда записываются значения времени окончания загрузки каждого изображания по мере их загрузки
   mask: undefined, //ссылка на двигающийся элемент в свг-враппере
   documentTimeStampsHtml: '', //дебуг текст, сохраняется сюда, для сокращения рассчетов. Потенциал для оптимизации
@@ -287,15 +296,16 @@ start()
 
 //конвертация hex в 0-1
 function hexToFe(hex) {
-  let r, g, b
-  if (hex.length==7){
+  let r, g, b //красный, зеленый, голубой
+  if (hex.length==7) {
     r = parseInt(hex.substring(1,3),16) / 255
     g = parseInt(hex.substring(3,5),16) / 255
     b = parseInt(hex.substring(5,7),16) / 255
-  } else if (hex.length==4){
+  } else if (hex.length==4) {
     r = parseInt(hex.substring(1,2),16) / 15
     g = parseInt(hex.substring(2,3),16) / 15
     b = parseInt(hex.substring(3,4),16) / 15
   }
   return r.toFixed(2) +" 0 0 0 0 0 " + g.toFixed(2) + " 0 0 0 0 0 " + b.toFixed(2) + " 0 0 0 0 0 1 0"
 }
+

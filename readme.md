@@ -29,11 +29,32 @@ https://origami1024.github.io/progress/
 4. Скрипт принимает такие параметры в теге: data-svgw, data-svgh, data-grayscale, data-ghostdur, data-cssanim, data-picPath, data-maskbg
 
 
+#### Параметры тега скрипт
+* data-svgw - (число), длина или ее пропорция, исходить лучше всего из viewBox главной свгшки
+* data-svgh - (число), высота или ее пропорция, исходить лучше всего из viewBox главной свгшки
+* data-grayscale - (true/false), нужно ли фоновый дубль изображения;
+* data-maskbg - (hex цвет, примеры: #f0f0f0, #f00), цвет фонового дубля изображения, применяемый поверх оригинальных цветов свг составным фильтром;
+* data-ghostdur - (число, пример: 2000), после окончания загрузки и последней анимации, анимация скрытия враппера будет длится столько ms;
+* data-cssanim - (true/false), если true - по прогрессу меняется css переменная, которая указана в transform: translate, что обеспечивает плавную анимацию; если false, то просто двигать координату x в части маски в svg
+* data-picPath - (строка, пример: "assets/img/logo2.svg"), путь к главной свгшке
+
+
 #### Пример подключения к страничке (В html в head):
 ```
-<script src="assets/accubar.js" data-svgw=142 data-svgh=62 data-grayscale="true" data-ghostdur=5000 data-cssanim="true" data-picPath="assets/img/visa-5.svg"></script>
-<link href="assets/accubar.css" rel="stylesheet" />
-<link rel="preload" href="assets/img/visa-5.svg" as="image">
+<head>
+  <link rel="preload" href="assets/img/logo2.svg" as="image">
+  <script src="assets/accubar.js"
+    data-maskbg="#333333"
+    data-picPath="assets/img/logo2.svg"
+    data-ghostdur=0
+    data-svgw=142
+    data-svgh=62
+    data-grayscale="true"
+    data-cssanim="true">
+  </script>  
+  <link href="assets/accubar.css" rel="stylesheet" />
+...
+</head>
 ```
 
 
