@@ -51,6 +51,9 @@ for (let index = 0; index < document.scripts.length; index++) {
     if (document.scripts[index].getAttribute('data-cssanim') == "false") presets.useCssTransition = false
     if (document.scripts[index].getAttribute('data-picPath')) presets.picPath = document.scripts[index].getAttribute('data-picPath')
     if (document.scripts[index].getAttribute('data-maskbg')) presets.maskBGColor = document.scripts[index].getAttribute('data-maskbg')
+    
+    //проверка, если браузер edge - перевод в режим без css, так худо бедно раюотает
+    if (window.navigator.userAgent.indexOf("Edge") > -1) presets.useCssTransition = false
     break;
   }
 }
@@ -165,7 +168,7 @@ let tracker = setInterval(()=>{
   //4. Каждую итерацию таймера пытаемся запустить функцию "отрисовки" анимации (сначала не будет получаться, но при таком варианте запуска начнет работать уже с первых загруженных в дом элементов)
   try {
     barAnimateProgress()
-  } catch {}
+  } catch (e) {}
 
   //5. Учёт загруженных скриптов
   if (document.scripts.length > composite.loadedScripts) {
@@ -215,7 +218,7 @@ function barAnimateProgress(){
   document.getElementsByClassName('documentTimeStampsDebug')[0].innerHTML = composite.documentTimeStampsHtml
   document.getElementsByClassName('scriptsDebug')[0].innerHTML = 'scripts loaded: ' + composite.loadedScripts
   if (presets.useCssTransition) {
-    composite.mask.style.setProperty('--maskPosX', perc * presets.svgWidth + 'px')
+    document.documentElement.style.setProperty('--maskPosX', perc * presets.svgWidth + 'px')
   } else {
     composite.mask.setAttribute('x', perc * presets.svgWidth)
   }
@@ -231,7 +234,7 @@ function barAnimateProgress(){
       setTimeout(()=>{
         document.getElementsByClassName('lastTipDebug')[0].classList.remove('imgsLoader')
         document.getElementsByClassName('lastTipDebug')[0].textContent += ' done'
-        bar.style.setProperty('transition-duration', '1s')
+        document.documentElement.style.setProperty('transition-duration', '1s')
         bar.classList.add('barEndAnimation')
         setTimeout(()=>{
           bar.addEventListener('transitionend', (e) => {
