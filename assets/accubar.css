@@ -11,6 +11,7 @@
 
 /* Styling of the whole page WRAPPER of the loading bar */
 .accubar {
+  color: white;
   position: absolute;
   top: 4vh;
   height: 95vh;

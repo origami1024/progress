@@ -54,6 +54,8 @@ for (let index = 0; index < document.scripts.length; index++) {
     
     //проверка, если браузер edge - перевод в режим без css, так худо бедно раюотает
     if (window.navigator.userAgent.indexOf("Edge") > -1) presets.useCssTransition = false
+    //если IE11 - то же самое
+    else if (navigator.userAgent.indexOf('MSIE')!==-1 || navigator.appVersion.indexOf('Trident/') > -1) presets.useCssTransition = false
     break;
   }
 }
@@ -70,6 +72,16 @@ let startTime = new Date().getTime()
 // 3. Если presets.grayscaleBGCopy задан true, то свгшка вставляется 2 раз с чернобелым фильтром - как фон
 // 4. Свгшка и маска растянуты на весь viewBox, и изменяются через presets.svgWidth, presets.svgHeight
 /////////////////
+let svgCode = '<svg class="inner-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + presets.svgWidth + ' ' + presets.svgHeight + '">'
+svgCode += '<defs><mask id="myMask" x="0" y="0">'
+svgCode += '<rect class="maskPart1" x="0" y="0" width="' + presets.svgWidth + '" height="' + presets.svgHeight + '" fill="white"></rect>'
+svgCode += '<rect class="maskMovingPart maskLeftToRight" x="0" y="0" width="' + presets.svgWidth + '" height="' + presets.svgHeight + '" fill="black"></rect>'
+svgCode += '</mask><filter id="composite"><feComponentTransfer in="SourceGraphic" result="A"><feFuncR type="linear" slope="0.5"/><feFuncG type="linear" slope="0.5"/><feFuncB type="linear" slope="0.5"/></feComponentTransfer><feColorMatrix type="saturate" in="A" result="B" values="0.1"/> <!--GRAYSCALE--><feComponentTransfer in="B" result="C"><feFuncR type="linear" slope="30"/><feFuncG type="linear" slope="30"/><feFuncB type="linear" slope="30"/></feComponentTransfer>'
+svgCode += '<feColorMatrix type="matrix" in="C" result="D" values="' + hexToFe(presets.maskBGColor) + '" /></filter></defs>'
+svgCode += presets.grayscaleBGCopy ? '<image filter="url(#composite)" xlink:href="' + presets.picPath + '" x="0" y="0" preserveAspectRatio="none" width="' + presets.svgWidth + '" height="' + presets.svgHeight + '" />' : ''
+svgCode += '<image mask="url(#myMask)" xlink:href="' + presets.picPath + '" x="0" y="0" preserveAspectRatio="none" width="' + presets.svgWidth + '" height="' + presets.svgHeight + '" />'
+svgCode += '</svg>'
+/*Старый код - template literals не поддерживаются ie11
 let svgCode = `
 <svg class="inner-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${presets.svgWidth} ${presets.svgHeight}">
   <defs>
@@ -96,6 +108,7 @@ let svgCode = `
   <image mask="url(#myMask)" xlink:href="${presets.picPath}" x="0" y="0" preserveAspectRatio="none" width="${presets.svgWidth}" height="${presets.svgHeight}" />
 </svg>
 `
+*/
 
 
 ////////////
@@ -124,7 +137,7 @@ let composite = {
 // 4. Вызов barAnimateProgress() - функция "отрисовки" элементов и анимации
 // 5. Подсчет загруженных скриптов, каждый добавляет 1 к realProgress и к progressCap. Такая странная реализация - потому что нельзя узнать сколько будет скриптов заранее.
 //////////////////
-let tracker = setInterval(()=>{
+let tracker = setInterval(function(){
   //1. Проверка загрузки изображений
   //за один интервал в прогресс добавляется только первая перебранная картинка, завершившая загрузку, для более плавных анимаций
   composite.imageCollection = document.getElementsByTagName("img")
@@ -157,7 +170,7 @@ let tracker = setInterval(()=>{
   //2. Изменения и рассчеты фактического значения загрузки - composite.realProgress
   composite.realProgress = composite.doneImages * 2 + composite.documentInteractive * 2 + composite.documentComplete + composite.loadedScripts
   composite.progressCap = composite.imageCollection.length * 2 + composite.loadedScripts + 2 + 1 //имеджи * 2 + 1 за каждый скрипт + 2 за интерактив + 1 за комплит
-  console.log(`progress: ${composite.realProgress} / ${composite.progressCap}`)
+  //console.log(`progress: ${composite.realProgress} / ${composite.progressCap}`)
   
   //3. Таймер удаляет сам себя, если загрузка дошла до 100%
   if (composite.progressCap === composite.realProgress) {
@@ -180,7 +193,7 @@ let tracker = setInterval(()=>{
 /////////////
 // readystatechange
 /////////////
-document.addEventListener('readystatechange', e => {
+document.addEventListener('readystatechange', function () {
   console.log('readyStateChange: ', document.readyState)
   if (document.readyState == 'interactive') {
     composite.documentTimeStampsHtml = 'document interactive: ' + parseFloat((new Date().getTime() - startTime)/1000).toFixed(2) + 's<br>'
@@ -211,9 +224,17 @@ function initLoadingBar(){
 ////////
 function barAnimateProgress(){
   let perc = composite.realProgress / composite.progressCap
+  /* OLD NONIE FRIENDLY CODE
   document.getElementsByClassName('realProgressDebug')[0].textContent = `real progress: ${composite.realProgress} / ${composite.progressCap} (${(perc * 100 | 0)}%)`
   document.getElementsByClassName('dbtxt2')[0].textContent = `document state: ${document.readyState} (${document.readyState == 'interactive' ? 2 : 3} / 3)`
   document.getElementsByClassName('imagesProgressDebug')[0].textContent = `imgs: ${composite.doneImages} / ${composite.imageCollection.length}${composite.doneImages == composite.imageCollection.length ? ' done' : ''}`
+  document.getElementsByClassName('dbtxt4')[0].textContent = 'img loading timestamps: ' + composite.imageTimeStamps.join('s ') + 's'
+  document.getElementsByClassName('documentTimeStampsDebug')[0].innerHTML = composite.documentTimeStampsHtml
+  document.getElementsByClassName('scriptsDebug')[0].innerHTML = 'scripts loaded: ' + composite.loadedScripts
+  */
+  document.getElementsByClassName('realProgressDebug')[0].textContent = 'real progress: ' + composite.realProgress + ' / ' + composite.progressCap + ' (' + (perc * 100 | 0) + '%)'
+  document.getElementsByClassName('dbtxt2')[0].textContent = 'document state: ' + document.readyState + ' (' + (document.readyState == 'interactive' ? '2' : '3') + ' / 3)'
+  document.getElementsByClassName('imagesProgressDebug')[0].textContent = 'imgs: ' + composite.doneImages + ' / ' + composite.imageCollection.length + (composite.doneImages == composite.imageCollection.length ? ' done' : '')
   document.getElementsByClassName('dbtxt4')[0].textContent = 'img loading timestamps: ' + composite.imageTimeStamps.join('s ') + 's'
   document.getElementsByClassName('documentTimeStampsDebug')[0].innerHTML = composite.documentTimeStampsHtml
   document.getElementsByClassName('scriptsDebug')[0].innerHTML = 'scripts loaded: ' + composite.loadedScripts
@@ -226,18 +247,18 @@ function barAnimateProgress(){
   if (perc >= 1) {
     document.getElementsByClassName('documentTimeStampsDebug')[0] += 'real progress 100%: ' + parseFloat((new Date().getTime() - startTime)/1000).toFixed(2) + 's<br>'
     //Вешаем вторую часть терминации на завершение transition маски
-    composite.mask.addEventListener('transitionend', () => {
+    composite.mask.addEventListener('transitionend', function () {
       document.getElementsByClassName('documentTimeStampsDebug')[0] += 'animation finished at 100%: ' + parseFloat((new Date().getTime() - startTime)/1000).toFixed(2) + 's'
-      document.getElementsByClassName('lastTipDebug')[0].textContent = `Время до закрытия(ghost time): ${parseFloat(presets.ghostTime / 1000).toFixed(2)}s`
+      document.getElementsByClassName('lastTipDebug')[0].textContent = 'Время до закрытия(ghost time): ' + parseFloat(presets.ghostTime / 1000).toFixed(2) + 's'
       //Вешаем третью часть терминации на таймер со временем presets.ghostTime
       document.getElementsByClassName('lastTipDebug')[0].classList.add('imgsLoader')
-      setTimeout(()=>{
+      setTimeout(function() {
         document.getElementsByClassName('lastTipDebug')[0].classList.remove('imgsLoader')
         document.getElementsByClassName('lastTipDebug')[0].textContent += ' done'
         document.documentElement.style.setProperty('transition-duration', '1s')
         bar.classList.add('barEndAnimation')
-        setTimeout(()=>{
-          bar.addEventListener('transitionend', (e) => {
+        setTimeout(function () {
+          bar.addEventListener('transitionend', function (e) {
             //Полная терминация на окончании transition элемента bar
             if (e.target == bar) bar.style.display = 'none' //здесь можно удалить его вообще из дом, если дебаг не нужен
           })
@@ -277,7 +298,7 @@ function start() {
 let bar = document.createElement('div')
 //Прилепляем svg заполненный шаблон к дебаг шаблону и всё это вставляем в bar
 //который в initLoadingBar потом будет прилеплен к body 
-bar.innerHTML = `
+/* bar.innerHTML = `
 ${svgCode}
 <div class="debuggerTxt realProgressDebug"></div>
 <div class="debuggerTxt dbtxt2"></div>
@@ -289,6 +310,9 @@ ${svgCode}
 <div class="debuggerTxt lastTipDebug"></div>
 <div class="debuggerTxt"></div>
 `
+*/
+bar.innerHTML = svgCode + '<div class="debuggerTxt realProgressDebug"></div><div class="debuggerTxt dbtxt2"></div><div class="debuggerTxt imagesProgressDebug imgsLoader"></div><div class="debuggerTxt dbtxt4"></div><div class="debuggerTxt scriptsDebug"></div><div class="debuggerTxt dbtxt5"></div><div class="debuggerTxt documentTimeStampsDebug"></div><div class="debuggerTxt lastTipDebug"></div><div class="debuggerTxt"></div>'
+
 bar.classList.add('accubar')
 
 //Запуск!
