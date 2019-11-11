@@ -226,8 +226,6 @@ function barAnimateProgress(){
     composite.mask.addEventListener('transitionend', () => {
       document.getElementsByClassName('documentTimeStampsDebug')[0] += 'animation finished at 100%: ' + parseFloat((new Date().getTime() - startTime)/1000).toFixed(2) + 's'
       document.getElementsByClassName('lastTipDebug')[0].textContent = `Время до закрытия(ghost time): ${parseFloat(presets.ghostTime / 1000).toFixed(2)}s`
-      //document.getElementsByClassName('inner-svg')[0].classList.add('svgEndAnimation')
-      
       //Вешаем третью часть терминации на таймер со временем presets.ghostTime
       document.getElementsByClassName('lastTipDebug')[0].classList.add('imgsLoader')
       setTimeout(()=>{
