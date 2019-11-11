@@ -297,7 +297,5 @@ function hexToFe(hex) {
     g = parseInt(hex.substring(2,3),16) / 15
     b = parseInt(hex.substring(3,4),16) / 15
   }
-  console.log(`${r.toFixed(2)} 0 0 0 0 0 ${g.toFixed(2)} 0 0 0 0 0 ${b.toFixed(2)} 0 0 0 0 0 1 0`)
   return r.toFixed(2) +" 0 0 0 0 0 " + g.toFixed(2) + " 0 0 0 0 0 " + b.toFixed(2) + " 0 0 0 0 0 1 0"
-  return `${r.toFixed(2)} 0 0 0 0 0 ${g.toFixed(2)} 0 0 0 0 0 ${b.toFixed(2)} 0 0 0 0 0 1 0`
 }
