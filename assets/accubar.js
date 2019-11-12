@@ -72,16 +72,6 @@ let startTime = new Date().getTime()
 // 3. Если presets.grayscaleBGCopy задан true, то свгшка вставляется 2 раз с чернобелым фильтром - как фон
 // 4. Свгшка и маска растянуты на весь viewBox, и изменяются через presets.svgWidth, presets.svgHeight
 /////////////////
-let svgCode = '<svg class="inner-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + presets.svgWidth + ' ' + presets.svgHeight + '">'
-svgCode += '<defs><mask id="myMask" x="0" y="0">'
-svgCode += '<rect class="maskPart1" x="0" y="0" width="' + presets.svgWidth + '" height="' + presets.svgHeight + '" fill="white"></rect>'
-svgCode += '<rect class="maskMovingPart maskLeftToRight" x="0" y="0" width="' + presets.svgWidth + '" height="' + presets.svgHeight + '" fill="black"></rect>'
-svgCode += '</mask><filter id="composite"><feComponentTransfer in="SourceGraphic" result="A"><feFuncR type="linear" slope="0.5"/><feFuncG type="linear" slope="0.5"/><feFuncB type="linear" slope="0.5"/></feComponentTransfer><feColorMatrix type="saturate" in="A" result="B" values="0.1"/> <!--GRAYSCALE--><feComponentTransfer in="B" result="C"><feFuncR type="linear" slope="30"/><feFuncG type="linear" slope="30"/><feFuncB type="linear" slope="30"/></feComponentTransfer>'
-svgCode += '<feColorMatrix type="matrix" in="C" result="D" values="' + hexToFe(presets.maskBGColor) + '" /></filter></defs>'
-svgCode += presets.grayscaleBGCopy ? '<image filter="url(#composite)" xlink:href="' + presets.picPath + '" x="0" y="0" preserveAspectRatio="none" width="' + presets.svgWidth + '" height="' + presets.svgHeight + '" />' : ''
-svgCode += '<image mask="url(#myMask)" xlink:href="' + presets.picPath + '" x="0" y="0" preserveAspectRatio="none" width="' + presets.svgWidth + '" height="' + presets.svgHeight + '" />'
-svgCode += '</svg>'
-/*Старый код - template literals не поддерживаются ie11
 let svgCode = `
 <svg class="inner-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${presets.svgWidth} ${presets.svgHeight}">
   <defs>
@@ -108,6 +98,16 @@ let svgCode = `
   <image mask="url(#myMask)" xlink:href="${presets.picPath}" x="0" y="0" preserveAspectRatio="none" width="${presets.svgWidth}" height="${presets.svgHeight}" />
 </svg>
 `
+/* Тот же код что сверху, переделанный под ie11(без ``), если пропустить через бабель, то он конвертирует
+let svgCode = '<svg class="inner-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + presets.svgWidth + ' ' + presets.svgHeight + '">'
+svgCode += '<defs><mask id="myMask" x="0" y="0">'
+svgCode += '<rect class="maskPart1" x="0" y="0" width="' + presets.svgWidth + '" height="' + presets.svgHeight + '" fill="white"></rect>'
+svgCode += '<rect class="maskMovingPart maskLeftToRight" x="0" y="0" width="' + presets.svgWidth + '" height="' + presets.svgHeight + '" fill="black"></rect>'
+svgCode += '</mask><filter id="composite"><feComponentTransfer in="SourceGraphic" result="A"><feFuncR type="linear" slope="0.5"/><feFuncG type="linear" slope="0.5"/><feFuncB type="linear" slope="0.5"/></feComponentTransfer><feColorMatrix type="saturate" in="A" result="B" values="0.1"/> <!--GRAYSCALE--><feComponentTransfer in="B" result="C"><feFuncR type="linear" slope="30"/><feFuncG type="linear" slope="30"/><feFuncB type="linear" slope="30"/></feComponentTransfer>'
+svgCode += '<feColorMatrix type="matrix" in="C" result="D" values="' + hexToFe(presets.maskBGColor) + '" /></filter></defs>'
+svgCode += presets.grayscaleBGCopy ? '<image filter="url(#composite)" xlink:href="' + presets.picPath + '" x="0" y="0" preserveAspectRatio="none" width="' + presets.svgWidth + '" height="' + presets.svgHeight + '" />' : ''
+svgCode += '<image mask="url(#myMask)" xlink:href="' + presets.picPath + '" x="0" y="0" preserveAspectRatio="none" width="' + presets.svgWidth + '" height="' + presets.svgHeight + '" />'
+svgCode += '</svg>'
 */
 
 
@@ -224,14 +224,6 @@ function initLoadingBar(){
 ////////
 function barAnimateProgress(){
   let perc = composite.realProgress / composite.progressCap
-  /* OLD NONIE FRIENDLY CODE
-  document.getElementsByClassName('realProgressDebug')[0].textContent = `real progress: ${composite.realProgress} / ${composite.progressCap} (${(perc * 100 | 0)}%)`
-  document.getElementsByClassName('dbtxt2')[0].textContent = `document state: ${document.readyState} (${document.readyState == 'interactive' ? 2 : 3} / 3)`
-  document.getElementsByClassName('imagesProgressDebug')[0].textContent = `imgs: ${composite.doneImages} / ${composite.imageCollection.length}${composite.doneImages == composite.imageCollection.length ? ' done' : ''}`
-  document.getElementsByClassName('dbtxt4')[0].textContent = 'img loading timestamps: ' + composite.imageTimeStamps.join('s ') + 's'
-  document.getElementsByClassName('documentTimeStampsDebug')[0].innerHTML = composite.documentTimeStampsHtml
-  document.getElementsByClassName('scriptsDebug')[0].innerHTML = 'scripts loaded: ' + composite.loadedScripts
-  */
   document.getElementsByClassName('realProgressDebug')[0].textContent = 'real progress: ' + composite.realProgress + ' / ' + composite.progressCap + ' (' + (perc * 100 | 0) + '%)'
   document.getElementsByClassName('dbtxt2')[0].textContent = 'document state: ' + document.readyState + ' (' + (document.readyState == 'interactive' ? '2' : '3') + ' / 3)'
   document.getElementsByClassName('imagesProgressDebug')[0].textContent = 'imgs: ' + composite.doneImages + ' / ' + composite.imageCollection.length + (composite.doneImages == composite.imageCollection.length ? ' done' : '')
