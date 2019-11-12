@@ -170,7 +170,7 @@ let tracker = setInterval(function(){
   //2. Изменения и рассчеты фактического значения загрузки - composite.realProgress
   composite.realProgress = composite.doneImages * 2 + composite.documentInteractive * 2 + composite.documentComplete + composite.loadedScripts
   composite.progressCap = composite.imageCollection.length * 2 + composite.loadedScripts + 2 + 1 //имеджи * 2 + 1 за каждый скрипт + 2 за интерактив + 1 за комплит
-  //console.log(`progress: ${composite.realProgress} / ${composite.progressCap}`)
+  console.log(`progress: ${composite.realProgress} / ${composite.progressCap}`)
   
   //3. Таймер удаляет сам себя, если загрузка дошла до 100%
   if (composite.progressCap === composite.realProgress) {
@@ -275,9 +275,7 @@ function barAnimateProgress(){
 function start() {
   try {
     initLoadingBar()
-  } catch (_error) {
-    NoTargetError = _error
-  }
+  } catch (_error) {}
   if (!document.querySelector('.accubar')) {
     //пробуй запустить через 50мс
     return setTimeout(start, 50)
@@ -290,7 +288,7 @@ function start() {
 let bar = document.createElement('div')
 //Прилепляем svg заполненный шаблон к дебаг шаблону и всё это вставляем в bar
 //который в initLoadingBar потом будет прилеплен к body 
-/* bar.innerHTML = `
+bar.innerHTML = `
 ${svgCode}
 <div class="debuggerTxt realProgressDebug"></div>
 <div class="debuggerTxt dbtxt2"></div>
@@ -302,8 +300,9 @@ ${svgCode}
 <div class="debuggerTxt lastTipDebug"></div>
 <div class="debuggerTxt"></div>
 `
-*/
-bar.innerHTML = svgCode + '<div class="debuggerTxt realProgressDebug"></div><div class="debuggerTxt dbtxt2"></div><div class="debuggerTxt imagesProgressDebug imgsLoader"></div><div class="debuggerTxt dbtxt4"></div><div class="debuggerTxt scriptsDebug"></div><div class="debuggerTxt dbtxt5"></div><div class="debuggerTxt documentTimeStampsDebug"></div><div class="debuggerTxt lastTipDebug"></div><div class="debuggerTxt"></div>'
+
+//IE11 friendly версия выше идущего кода:
+//bar.innerHTML = svgCode + '<div class="debuggerTxt realProgressDebug"></div><div class="debuggerTxt dbtxt2"></div><div class="debuggerTxt imagesProgressDebug imgsLoader"></div><div class="debuggerTxt dbtxt4"></div><div class="debuggerTxt scriptsDebug"></div><div class="debuggerTxt dbtxt5"></div><div class="debuggerTxt documentTimeStampsDebug"></div><div class="debuggerTxt lastTipDebug"></div><div class="debuggerTxt"></div>'
 
 bar.classList.add('accubar')
 
