@@ -26,7 +26,8 @@ https://origami1024.github.io/progress/
     data-svgw=142
     data-svgh=62
     data-grayscale="true"
-    data-cssanim="true">
+    data-cssanim="true"
+    data-debug="false">
   </script>  
   <link href="assets/accubar.css" rel="stylesheet" />
 ...
