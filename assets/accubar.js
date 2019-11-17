@@ -229,11 +229,15 @@ function barAnimateProgress(){
         debugLastBit()
         document.documentElement.style.setProperty('transition-duration', '1s')
         bar.classList.add('barEndAnimation')
+        bar.addEventListener('transitionend', function (e) {
+          //Полная терминация на окончании transition элемента bar
+          if (e.target == bar) {
+            bar.style.display = 'none' //здесь можно удалить его вообще из дом, если дебаг не нужен
+            console.log('Total time: ', parseFloat((new Date().getTime() - startTime)/1000).toFixed(2))
+          }
+        })
         setTimeout(function () {
-          bar.addEventListener('transitionend', function (e) {
-            //Полная терминация на окончании transition элемента bar
-            if (e.target == bar) bar.style.display = 'none' //здесь можно удалить его вообще из дом, если дебаг не нужен
-          })
+          
           document.body.classList.remove('stop-scrolling')
         }, 1000)
       },presets.ghostTime)
