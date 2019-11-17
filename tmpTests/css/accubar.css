@@ -24,7 +24,7 @@
   /*background-color: #6eb6db;*/
   background: linear-gradient(135deg, #6eb6db 0%, #2b83b2 51%, #2981b1 100%);
   pointer-events: none;
-  transition: all 0.3s ease-in-out;
+  /* transition: all 0.3s ease-in-out; */
   z-index: 5;
 }
 .accubar.barEndAnimation {

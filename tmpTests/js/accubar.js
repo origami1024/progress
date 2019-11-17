@@ -29,9 +29,6 @@ for (let index = 0; index < document.scripts.length; index++) {
     if (document.scripts[index].getAttribute('data-maskbg')) presets.maskBGColor = document.scripts[index].getAttribute('data-maskbg')
     if (document.scripts[index].getAttribute('data-debug') == "false") presets.debugOn = false
     if (document.scripts[index].getAttribute('data-imgsPerTick')) presets.maxImagesPerTick = +document.scripts[index].getAttribute('data-imgsPerTick')
-    
-    //проверка, если браузер edge - перевод в режим без css, так худо бедно раюотает
-    if ((window.navigator.userAgent.indexOf("Edge") > -1) || navigator.userAgent.indexOf('MSIE')!==-1 || navigator.appVersion.indexOf('Trident/') > -1) presets.useCssTransition = false
     break;
   }
 }
@@ -58,16 +55,16 @@ for (let index = 0; index < document.scripts.length; index++) {
   }
   var startTime = new Date().getTime(),
       bar = document.createElement('div'),
-      stat = document.createElement('div')
+      stat = document.createElement('div'),
+      perc = 0
 
   function initBarElement(){
     console.log('initBarElement time: ',((new Date().getTime() - startTime) / 1000).toFixed(2) + 's')
     var svgCode = `
-      <svg class="inner-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${presets.svgWidth} ${presets.svgHeight}">
+      <svg class="inner-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${presets.svgWidth + 1} ${presets.svgHeight}">
         <defs>
           <mask id="myMask" x="0" y="0">
-            <rect class="maskPart1" x="0" y="0" width="${presets.svgWidth}" height="${presets.svgHeight}" fill="white"></rect>
-            <rect class="maskMovingPart maskLeftToRight" x="0" y="0" width="${presets.svgWidth}" height="${presets.svgHeight}" fill="black"></rect>
+            <rect id="mask" class="maskMovingPart maskLeftToRight" x="${-presets.svgWidth}" y="0" width="${presets.svgWidth}" height="${presets.svgHeight}" fill="white"></rect>
           </mask>
           <filter id="composite">
             <feColorMatrix type="saturate" in="SourceGraphic" result="B" values="0.1"/> <!--GRAYSCALE-->
@@ -91,30 +88,35 @@ for (let index = 0; index < document.scripts.length; index++) {
   function loadbar() {
     console.log('loadbar time: ',((new Date().getTime() - startTime) / 1000).toFixed(2) + 's')
     var img = document.images,
-    c = 0,
-    tot = img.length,
+    c = 0, // c - finished images
+    tot = img.length, //tot - number of images
     timeStamps = []
-    
     function imgLoaded(){
       c += 1;
-      var perc = 100/tot*c
-      console.log(perc)
-      document.documentElement.style.setProperty('--maskPosX', perc / 100 * (presets.svgWidth) + 'px')
-      
+      perc = 100/tot*c
+      document.getElementById('mask').style.transform = 'translateX(' + (perc / 100) * presets.svgWidth + 'px)'
       stat.textContent = "Loading "+ (perc << 0) +"%"
       
       let tmpTime = ((new Date().getTime() - startTime) / 1000).toFixed(2)
       timeStamps.push(tmpTime)
       let animTime = tmpTime / (timeStamps.length + 0.15)
       if (animTime < 0.5) animTime = 0.5 // если очень быстро, то замедляем
-      document.documentElement.style.setProperty('--maskAnimDuration', animTime + 's')
+      if(c===tot && animTime>0.6) animTime == 0.6
+      console.log(animTime)
+      document.getElementById('mask').style.transitionDuration = animTime + 's'
       if(c===tot) return doneLoading()
     }
     function doneLoading(){
       console.log('done time: ',((new Date().getTime() - startTime) / 1000).toFixed(2) + 's')
-      //bar.style.opacity = 0;
+      
       setTimeout(function(){
-        bar.style.display = "none";
+        bar.style.transitionDuration = '0.5s'
+        bar.style.opacity = 0;
+        setTimeout(function(){
+          bar.style.display = "none";
+        }, 500)
+        
+        console.log('bar animation start: ',((new Date().getTime() - startTime) / 1000).toFixed(2) + 's')
       }, 600);
     }
     for(var i=0; i<tot; i++) {
@@ -131,11 +133,12 @@ for (let index = 0; index < document.scripts.length; index++) {
     } catch (_error) {}
     if (!document.querySelector('.accubar')) {
       //пробуй запустить через 30мс
-      return setTimeout(start, 30)
+      return setTimeout(start, 20)
     } else {
       //Успешный запуск
     }
   }
   start() //Мы можем прикрепить бар еще до DOMContentLoaded
   document.addEventListener('DOMContentLoaded', loadbar, false);
+  
 }());
