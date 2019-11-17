@@ -137,7 +137,7 @@ let tracker = setInterval(function(){
         composite.doneImages += 1
         if (composite.doneImages == composite.imageCollection.length) {
           //чисто косметическое действие - убрать крутящийся лоадер, когда последний img загружен
-          if (presets.debugOn) document.getElementsByClassName('imgsLoader')[0].classList.remove('imgsLoader')
+          if (presets.debugOn && document.getElementsByClassName('imgsLoader').length>0) document.getElementsByClassName('imgsLoader')[0].classList.remove('imgsLoader')
         }
         //далее на загрузке каждого img добавить время от старта в composite, для рассчетов скорости анимации и дебаггинга
         let tmpTime = ((new Date().getTime() - startTime) / 1000).toFixed(2)
