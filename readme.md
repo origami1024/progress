@@ -27,7 +27,8 @@ https://origami1024.github.io/progress/
     data-svgh=62
     data-grayscale="true"
     data-cssanim="true"
-    data-debug="true">
+    data-debug="true"
+    data-imgsPerTick=20>
   </script>  
   <link href="assets/accubar.css" rel="stylesheet" />
 ...
@@ -51,6 +52,7 @@ https://origami1024.github.io/progress/
 * data-cssanim - (true/false), если true - по прогрессу меняется css переменная, которая указана в transform: translate, что обеспечивает плавную анимацию; если false, то просто двигать координату x в части маски в svg
 * data-picPath - (строка, пример: "assets/img/logo2.svg"), путь к главной свгшке
 * data-debug - (true/false), выводить дебаг-информацию или нет
+* data-imgsPerTick - (1/20/Infinity), параметр, влияющий с одной стороны на плавность инимации, с другой может приводить к лишнему ожиданию, когда всё уже загрузилось
 
 #### Идеи по доработке:
 * Сделать код вывода дебага более читабельным

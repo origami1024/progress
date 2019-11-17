@@ -17,7 +17,8 @@
   data-svgh=62
   data-grayscale="true"
   data-cssanim="true"
-  data-debug="true">
+  data-debug="true"
+  data-imgsPerTick=20>
 </script>
 <link href="assets/accubar.css" rel="stylesheet" />
 */
@@ -36,6 +37,7 @@ let presets = {
   useCssTransition: true,//Если true - по прогрессу меняется css переменная, которая указана в transform: translate, что обеспечивает плавную анимацию; если false, то просто двигать координату x в части маски в svg
   picPath: 'assets/img/progress_v5.svg', //Путь к сторонней свгшке. Она должна грузится как можно раньше, поэтому эту часть нужно продублировать в html в head, по типу: <link rel="preload" href="assets/img/visa-5.svg" as="image">
   debugOn: true, //Выводить дебаг текст или нет
+  maxImagesPerTick: 1, //Кол-во готовых изображений, добавленных в прогресс за 1 тик таймера, если изображений мало, можно поставить 1 для повышения плавности
 }
 
 
@@ -54,6 +56,7 @@ for (let index = 0; index < document.scripts.length; index++) {
     if (document.scripts[index].getAttribute('data-picPath')) presets.picPath = document.scripts[index].getAttribute('data-picPath')
     if (document.scripts[index].getAttribute('data-maskbg')) presets.maskBGColor = document.scripts[index].getAttribute('data-maskbg')
     if (document.scripts[index].getAttribute('data-debug') == "false") presets.debugOn = false
+    if (document.scripts[index].getAttribute('data-imgsPerTick')) presets.maxImagesPerTick = document.scripts[index].getAttribute('data-imgsPerTick')
     
     //проверка, если браузер edge - перевод в режим без css, так худо бедно раюотает
     if ((window.navigator.userAgent.indexOf("Edge") > -1) || navigator.userAgent.indexOf('MSIE')!==-1 || navigator.appVersion.indexOf('Trident/') > -1) presets.useCssTransition = false
@@ -126,6 +129,7 @@ let tracker = setInterval(function(){
   //1. Проверка загрузки изображений
   //за один интервал в прогресс добавляется только первая перебранная картинка, завершившая загрузку, для более плавных анимаций
   composite.imageCollection = document.getElementsByTagName("img")
+  let tmpCounter = 0
   for (let i = 0, icount=composite.imageCollection.length; i < icount; i++){
     if (composite.imageCollection[i].complete) {
       if (composite.imageCollection[i].dataset['loadcomplete'] != 1) {
@@ -146,7 +150,10 @@ let tracker = setInterval(function(){
         } else {
           document.documentElement.style.setProperty('--maskAnimDuration', 0)
         }
-        break //break при первом найденом новом img.complete, чтобы сделать анимацию более плавной - не обрабатывать одновременные загрузки в одном цикле, а откладывая их на след
+        tmpCounter += 1
+        if (tmpCounter >= composite.maxImagesPerTick) {
+          break //для большей плавности
+        }
       }
     }
   }
