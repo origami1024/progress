@@ -79,18 +79,18 @@ let startTime = new Date().getTime()
 let svgCode = `
 <svg class="inner-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${presets.svgWidth} ${presets.svgHeight}">
   <defs>
-    <mask id="myMask" x="0" y="0">
+    <mask id="myMask">
       <rect class="maskPart1" x="0" y="0" width="${presets.svgWidth}" height="${presets.svgHeight}" fill="white"></rect>
       <rect class="maskMovingPart maskLeftToRight" x="0" y="0" width="${presets.svgWidth}" height="${presets.svgHeight}" fill="black"></rect>
     </mask>
     <filter id="composite">
-      <feColorMatrix type="saturate" in="SourceGraphic" result="B" values="0.1"/> <!--GRAYSCALE-->
+      <feColorMatrix type="saturate" in="SourceGraphic" result="B" values="0.1"/>
       <feComponentTransfer in="B" result="C">
         <feFuncR type="linear" slope="30"/>
         <feFuncG type="linear" slope="30"/>
         <feFuncB type="linear" slope="30"/>
       </feComponentTransfer>
-      <feColorMatrix type="matrix" in="C" result="D" values="${hexToFe(presets.maskBGColor)}" /> <!--NEW COLOR-->
+      <feColorMatrix type="matrix" in="C" values="${hexToFe(presets.maskBGColor)}" />
     </filter>
   </defs>
   ${presets.grayscaleBGCopy ? `<image filter="url(#composite)" xlink:href="${presets.picPath}" x="0" y="0" preserveAspectRatio="none" width="${presets.svgWidth}" height="${presets.svgHeight}" />` : ''}
@@ -128,7 +128,7 @@ let composite = {
 let tracker = setInterval(function(){
   //1. Проверка загрузки изображений
   //за один интервал в прогресс добавляется только первая перебранная картинка, завершившая загрузку, для более плавных анимаций
-  composite.imageCollection = document.getElementsByTagName("img")
+  composite.imageCollection = document.images
   let tmpCounter = 0
   for (let i = 0, icount=composite.imageCollection.length; i < icount; i++){
     if (composite.imageCollection[i].complete) {
@@ -159,8 +159,8 @@ let tracker = setInterval(function(){
   }
 
   //2. Изменения и рассчеты фактического значения загрузки - composite.realProgress
-  composite.realProgress = composite.doneImages * 2 + composite.documentInteractive * 2 + composite.documentComplete + composite.loadedScripts
-  composite.progressCap = composite.imageCollection.length * 2 + composite.loadedScripts + 2 + 1 //имеджи * 2 + 1 за каждый скрипт + 2 за интерактив + 1 за комплит
+  composite.realProgress = composite.doneImages * 5 + composite.documentInteractive * 2 + composite.documentComplete + composite.loadedScripts
+  composite.progressCap = composite.imageCollection.length * 5 + composite.loadedScripts + 2 + 1 //имеджи * 2 + 1 за каждый скрипт + 2 за интерактив + 1 за комплит
   
   //3. Таймер удаляет сам себя, если загрузка дошла до 100%
   if (composite.progressCap === composite.realProgress) {
@@ -176,7 +176,7 @@ let tracker = setInterval(function(){
   if (document.scripts.length > composite.loadedScripts) {
     composite.loadedScripts = document.scripts.length
   }
-},50)
+},25)
 
 
 /////////////
