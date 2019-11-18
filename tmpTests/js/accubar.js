@@ -5,11 +5,8 @@ let presets = {
   svgHeight: 62, //Высота(ее пропорция) viewBox в сторонней свгшке
   grayscaleBGCopy: true, //Нужна ли серая копия свгшки бэкграундом?
   maskBGColor: '#333', //хексы длиной 7 и 4 символа
-  ghostTime: 1750, //"Время в лимбе": после окончания загрузки и последней анимации, анимация скрытия враппера accubar(сейчас opacity в 0) будет длится столько ms
-  useCssTransition: true,//Если true - по прогрессу меняется css переменная, которая указана в transform: translate, что обеспечивает плавную анимацию; если false, то просто двигать координату x в части маски в svg
   picPath: 'assets/img/progress_v5.svg', //Путь к сторонней свгшке. Она должна грузится как можно раньше, поэтому эту часть нужно продублировать в html в head, по типу: <link rel="preload" href="assets/img/visa-5.svg" as="image">
   debugOn: true, //Выводить дебаг текст или нет
-  maxImagesPerTick: 15, //Кол-во готовых изображений, добавленных в прогресс за 1 тик таймера, если изображений мало, можно поставить 1 для повышения плавности
 }
 for (let index = 0; index < document.scripts.length; index++) {
   if (document.scripts[index].src.split('/').pop() ==='accubar.js') {
@@ -17,12 +14,9 @@ for (let index = 0; index < document.scripts.length; index++) {
     if (document.scripts[index].getAttribute('data-svgw')) presets.svgWidth = +document.scripts[index].getAttribute('data-svgw')
     if (document.scripts[index].getAttribute('data-svgh')) presets.svgHeight = +document.scripts[index].getAttribute('data-svgh')
     if (document.scripts[index].getAttribute('data-grayscale') == "false") presets.grayscaleBGCopy = false
-    if (document.scripts[index].getAttribute('data-ghostdur')) presets.ghostTime = +document.scripts[index].getAttribute('data-ghostdur')
-    if (document.scripts[index].getAttribute('data-cssanim') == "false") presets.useCssTransition = false
     if (document.scripts[index].getAttribute('data-picPath')) presets.picPath = document.scripts[index].getAttribute('data-picPath')
     if (document.scripts[index].getAttribute('data-maskbg')) presets.maskBGColor = document.scripts[index].getAttribute('data-maskbg')
     if (document.scripts[index].getAttribute('data-debug') == "false") presets.debugOn = false
-    if (document.scripts[index].getAttribute('data-imgsPerTick')) presets.maxImagesPerTick = +document.scripts[index].getAttribute('data-imgsPerTick')
     break;
   }
 }
@@ -52,27 +46,28 @@ function hexToFe(hex) {
 //Все глобальные переменные
 var startTime = new Date().getTime(),
     bar = document.createElement('div'),
-    stat = document.createElement('div'),
-    timeStamps = [],
+    stat = document.createElement('div'), //элемент с текстом процентов под логотипом
+    timeStamps = [], //хранить время загрузки всех предыдущих ресурсов, чтобы можно было рассчитать среднее время загрузки одного ресурса и поставить скорость анимации с учетом этого
     currentProgress = 0, //текущий прогресс
     totalProgressCap = 3 //2 изначально - по 1 на обе documentreadystate, и еще 1 на loadbar, чтобы до добавления всех картинок не вышел
 
+
 function initBarElement(){
-  console.log('initBarElement time: ',((new Date().getTime() - startTime) / 1000).toFixed(2) + 's')
+  if (presets.debugOn) console.log('initBarElement time: ',((new Date().getTime() - startTime) / 1000).toFixed(2) + 's')
   var svgCode = `
     <svg class="inner-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${presets.svgWidth + 1} ${presets.svgHeight}">
       <defs>
-        <mask id="myMask" x="0" y="0">
-          <rect id="mask" class="maskMovingPart maskLeftToRight" x="${-presets.svgWidth}" y="0" width="${presets.svgWidth}" height="${presets.svgHeight}" fill="white"></rect>
+        <mask id="myMask">
+          <rect id="mask" x="${-presets.svgWidth}" y="0" width="${presets.svgWidth}" height="${presets.svgHeight}" fill="#fff"></rect>
         </mask>
         <filter id="composite">
-          <feColorMatrix type="saturate" in="SourceGraphic" result="B" values="0.1"/> <!--GRAYSCALE-->
+          <feColorMatrix type="saturate" in="SourceGraphic" result="B" values="0.1"/>
           <feComponentTransfer in="B" result="C">
             <feFuncR type="linear" slope="30"/>
             <feFuncG type="linear" slope="30"/>
             <feFuncB type="linear" slope="30"/>
           </feComponentTransfer>
-          <feColorMatrix type="matrix" in="C" result="D" values="${hexToFe(presets.maskBGColor)}" /> <!--NEW COLOR-->
+          <feColorMatrix type="matrix" in="C" values="${hexToFe(presets.maskBGColor)}" />
         </filter>
       </defs>
       ${presets.grayscaleBGCopy ? `<image filter="url(#composite)" xlink:href="${presets.picPath}" x="0" y="0" preserveAspectRatio="none" width="${presets.svgWidth}" height="${presets.svgHeight}" />` : ''}
@@ -89,7 +84,6 @@ function initBarElement(){
 function resourceLoaded(){
   var perc = 0
   currentProgress += 1;
-  
   perc = 100 / (totalProgressCap + document.scripts.length) * (currentProgress + document.scripts.length)
   document.getElementById('mask').style.transform = 'translateX(' + (perc / 100) * presets.svgWidth + 'px)'
   
@@ -105,7 +99,7 @@ function resourceLoaded(){
   if(currentProgress === totalProgressCap) return doneLoading()
 }
 function doneLoading(){
-  console.log('done time: ',((new Date().getTime() - startTime) / 1000).toFixed(2) + 's')
+  if (presets.debugOn) console.log('done time: ',((new Date().getTime() - startTime) / 1000).toFixed(2) + 's')
   setTimeout(function(){
     bar.style.transitionDuration = '0.5s'
     bar.style.opacity = 0;
@@ -113,11 +107,11 @@ function doneLoading(){
       bar.style.display = "none";
     }, 500)
     
-    console.log('bar opacity-out start: ',((new Date().getTime() - startTime) / 1000).toFixed(2) + 's')
+    if (presets.debugOn) console.log('bar opacity-out start: ',((new Date().getTime() - startTime) / 1000).toFixed(2) + 's')
   }, 600);
 }
 function loadbar() {
-  console.log('loadbar time: ',((new Date().getTime() - startTime) / 1000).toFixed(2) + 's')
+  if (presets.debugOn) console.log('loadbar time: ',((new Date().getTime() - startTime) / 1000).toFixed(2) + 's')
   var imgs = document.images
   totalProgressCap = totalProgressCap + imgs.length
   
@@ -133,7 +127,7 @@ function loadbar() {
 document.addEventListener('readystatechange', function () {
   if (document.readyState == 'interactive') currentProgress += 1
   if (document.readyState == 'complete') resourceLoaded()
-  console.log(document.readyState, ((new Date().getTime() - startTime) / 1000).toFixed(2) + 's')
+  if (presets.debugOn) console.log(document.readyState, ((new Date().getTime() - startTime) / 1000).toFixed(2) + 's')
 })
 
 function start() {
@@ -141,10 +135,8 @@ function start() {
     initBarElement()
   } catch (_error) {}
   if (!document.querySelector('.accubar')) {
-    //пробуй запустить через 30мс
+    //если не добавилось пробуй запустить через 20мс
     return setTimeout(start, 20)
-  } else {
-    //Успешный запуск
   }
 }
 start() //Мы можем прикрепить бар еще до DOMContentLoaded

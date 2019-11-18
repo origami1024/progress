@@ -27,27 +27,12 @@
   /* transition: all 0.3s ease-in-out; */
   z-index: 5;
 }
-.accubar.barEndAnimation {
-  transform: scale(1.1);
-}
-/* ----- */
 
 
 .inner-svg {
   width: 35vw; /* Размеры самого элемента svg */
-
   /* animation: fadein 2s; */
   transition-timing-function: linear;
 }
 
-@keyframes fadein {
-  from { opacity: 0; }
-  to   { opacity: 1; }
-}
 
-.maskMovingPart{
-  transition-duration: var(--maskAnimDuration);
-}
-.maskLeftToRight{
-  transform: translate3d(var(--maskPosX), 0, 0);
-}
